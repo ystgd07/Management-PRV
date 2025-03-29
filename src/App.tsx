@@ -1,17 +1,15 @@
-import './App.css'
-import OfflineAlert from './shared/ui/OfflineAlert'
-import UpdatePrompt from './shared/ui/UpdatePrompt'
+import OfflineAlert from "./shared/ui/OfflineAlert";
+import UpdatePrompt from "./shared/ui/UpdatePrompt";
+import Main from "./pages/main/Main";
 
 function App() {
   return (
-    <>
+    <div className='mx-auto max-w-[420px] flex flex-col min-h-screen bg-background'>
       <OfflineAlert />
-      <div className="bg-red-500">
-        <h1 className="text-3xl font-bold underline">Hello World</h1>
-      </div>
+      <Main />
       <UpdatePrompt />
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
