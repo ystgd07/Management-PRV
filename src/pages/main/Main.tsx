@@ -8,14 +8,13 @@ import { Toaster } from "sonner";
 import MainHeader from "@/widget/Component/MainHeader";
 import PageRoute from "@/widget/Component/PageRoute";
 // 샘플 데이터 (API 연동 시 삭제! ⚠️)
-import { jobs, applications, interviews } from "@/lib/sample";
+import { applications, interviews } from "@/lib/sample";
 import BottonNav from "@/widget/Component/BottonNav";
-import { useJobStore } from "@/store/Job/store";
 import ContentContainer from "@/features/search/ui/ContentContainer";
+import Interest from "@/pages/interest/Interest";
 
 export default function JobSearchApp() {
   const [activeTab, setActiveTab] = useState("search");
-  const { savedJobs, toggleSaveJob } = useJobStore();
 
   return (
     <div className='flex flex-col min-h-screen bg-background'>
@@ -30,71 +29,12 @@ export default function JobSearchApp() {
           onValueChange={setActiveTab}
           className='w-full'
         >
-          {/* Widget: Page Route */}
+          {/* Widget: Top NAV */}
           <PageRoute />
-          {/* Feature UI: Content Container */}
+          {/* Feature UI: SearchContent Container */}
           <ContentContainer />
-
-          {/* Saved Jobs Tab */}
-          <TabsContent value='saved' className='p-4 space-y-4'>
-            <h2 className='text-lg font-semibold'>관심 공고</h2>
-            {savedJobs.length > 0 ? (
-              <div className='space-y-3'>
-                {jobs
-                  .filter((job) => savedJobs.includes(job.id))
-                  .map((job) => (
-                    <Card key={job.id} className='overflow-hidden'>
-                      <CardContent className='p-4'>
-                        <div className='flex justify-between items-start'>
-                          <div>
-                            <h3 className='font-bold'>{job.title}</h3>
-                            <p className='text-sm text-muted-foreground'>
-                              {job.company}
-                            </p>
-                          </div>
-                          <Button
-                            variant='ghost'
-                            size='icon'
-                            onClick={() => toggleSaveJob(job.id)}
-                            className='h-8 w-8'
-                          >
-                            <Heart className='h-5 w-5 fill-primary text-primary' />
-                          </Button>
-                        </div>
-                        <div className='flex items-center gap-2 mt-2 text-sm text-muted-foreground'>
-                          <MapPin className='h-3.5 w-3.5' />
-                          <span>{job.location}</span>
-                          <span className='text-xs'>•</span>
-                          <Briefcase className='h-3.5 w-3.5' />
-                          <span>{job.experience}</span>
-                        </div>
-                        <div className='flex justify-between items-center mt-3'>
-                          <span className='text-xs text-muted-foreground'>
-                            {job.posted}
-                          </span>
-                          <Button size='sm'>지원하기</Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
-            ) : (
-              <div className='flex flex-col items-center justify-center py-10 text-center'>
-                <Heart className='h-12 w-12 text-muted-foreground mb-4' />
-                <h3 className='font-medium text-lg'>관심 공고가 없습니다</h3>
-                <p className='text-muted-foreground mt-1'>
-                  관심있는 공고를 하트 아이콘을 눌러 저장해보세요
-                </p>
-                <Button
-                  variant='outline'
-                  className='mt-4'
-                  onClick={() => setActiveTab("search")}
-                >
-                  공고 검색하기
-                </Button>
-              </div>
-            )}
-          </TabsContent>
+          {/* Page UI:Interest Tab */}
+          <Interest activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Applications Tab */}
           <TabsContent value='applications' className='p-4 space-y-4'>
@@ -225,7 +165,7 @@ export default function JobSearchApp() {
         </Tabs>
       </main>
 
-      {/* Widget: Bottom Navigation */}
+      {/* Widget: Bottom NAV  */}
       <BottonNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
