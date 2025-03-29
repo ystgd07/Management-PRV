@@ -25,3 +25,6 @@ dist-ssr
 
 # 개발 환경 파일
 dev-dist/*
+
+# 작업 관련 파일 폴더
+WorkFolder/*
