@@ -11,7 +11,7 @@ import PageRoute from "@/widget/Component/PageRoute";
 import { applications, interviews } from "@/lib/sample";
 import BottonNav from "@/widget/Component/BottonNav";
 import ContentContainer from "@/features/search/ui/ContentContainer";
-import Interest from "@/pages/interest/Interest";
+import Interest from "@/pages/interest/page";
 
 export default function JobSearchApp() {
   const [activeTab, setActiveTab] = useState("search");
