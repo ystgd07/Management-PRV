@@ -8,7 +8,7 @@ import { Toaster } from "sonner";
 import MainHeader from "@/widget/Component/MainHeader";
 import PageRoute from "@/widget/Component/PageRoute";
 // 샘플 데이터 (API 연동 시 삭제! ⚠️)
-import { applications, interviews } from "@/lib/sample";
+import { applications, interviews } from "@/shared/lib/sample";
 import BottonNav from "@/widget/Component/BottonNav";
 import ContentContainer from "@/features/search/ui/ContentContainer";
 import Interest from "@/pages/interest/page";

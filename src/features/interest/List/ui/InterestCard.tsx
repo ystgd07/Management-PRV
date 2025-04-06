@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Job } from "@/lib/sample";
+import { Job } from "@/shared/lib/sample";
 import { Heart, MapPin, Briefcase } from "lucide-react";
 
 export default function InterestCard({

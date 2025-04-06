@@ -1,4 +1,4 @@
-import { jobs } from "@/lib/sample";
+import { jobs } from "@/shared/lib/sample";
 import { useJobStore } from "@/store/Job/store";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
