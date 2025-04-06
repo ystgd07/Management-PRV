@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CardContent } from "@/components/ui/card";
-import { jobs } from "@/lib/sample";
+import { jobs } from "@/shared/lib/sample";
 import { Heart, MapPin, Briefcase } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useJobStore } from "@/store/Job/store";
