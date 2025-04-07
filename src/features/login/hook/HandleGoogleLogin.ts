@@ -10,13 +10,12 @@ export function useGoogleLogin(auth = useAuth()) {
     try {
       resetAuthState();
 
-      // 백엔드 API 서버의 Google 인증 엔드포인트로 직접 리다이렉트
       const apiBaseUrl = import.meta.env.VITE_API_URL || "";
 
       // OAuth 상태 파라미터 추가 (CSRF 방지)
       const state = btoa(
         JSON.stringify({
-          redirectUrl: "/main", // 인증 성공 후 리다이렉트할 경로
+          redirectUrl: "/main",
           timestamp: Date.now(),
         })
       );
@@ -29,7 +28,6 @@ export function useGoogleLogin(auth = useAuth()) {
         state
       )}`;
 
-      // 주의: 이후 코드는 실행되지 않음
     } catch (error: any) {
       console.error("Google 로그인 리다이렉트 중 오류 발생:", error);
       setError("로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.");

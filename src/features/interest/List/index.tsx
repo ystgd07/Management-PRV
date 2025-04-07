@@ -2,9 +2,6 @@ import { useJobStore } from "@/store/Job/store";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import InterestCard from "./ui/InterestCard";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/shared/api/apiClient";
-import { Job } from "@/entities/job/model";
 
 export default function InterestList({
   activeTab,
@@ -13,25 +10,10 @@ export default function InterestList({
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }) {
-  const { savedJobs, toggleSaveJob } = useJobStore();
+  const { toggleSaveJob, favorites } = useJobStore();
 
-  const { data: savedJobsData, isLoading } = useQuery({
-    queryKey: ["savedJobs", savedJobs],
-    queryFn: async () => {
-      if (savedJobs.length === 0) return [];
-
-      try {
-        const response = await api.get<Job[]>(
-          `/jobs/byIds?ids=${savedJobs.join(",")}`
-        );
-        return response;
-      } catch (error) {
-        console.error("관심 공고 불러오기 실패:", error);
-        return [];
-      }
-    },
-    enabled: savedJobs.length > 0,
-  });
+  // 로딩 상태는 전역적으로 관리되므로 여기서는 별도로 처리하지 않음
+  const isLoading = false;
 
   if (isLoading) {
     return (
@@ -43,12 +25,12 @@ export default function InterestList({
 
   return (
     <>
-      {savedJobs.length > 0 && savedJobsData && savedJobsData.length > 0 ? (
+      {favorites && favorites.length > 0 ? (
         <div className='space-y-3'>
-          {savedJobsData.map((job) => (
+          {favorites.map((favorite) => (
             <InterestCard
-              key={job.id}
-              job={job}
+              key={favorite.id}
+              job={favorite.job!}
               toggleSaveJob={toggleSaveJob}
             />
           ))}

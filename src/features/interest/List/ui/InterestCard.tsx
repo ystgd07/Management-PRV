@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Job } from "@/entities/job/model";
 import { Heart, MapPin, Briefcase } from "lucide-react";
+import { useJobStore } from "@/store/Job/store";
+import { useDeleteFavoriteMutation } from "@/entities/favorite/queries";
 
 export default function InterestCard({
   job,
@@ -10,6 +12,18 @@ export default function InterestCard({
   job: Job;
   toggleSaveJob: (id: string) => void;
 }) {
+  const { getFavoriteIdByJobId } = useJobStore();
+  const { mutate: deleteFavorite } = useDeleteFavoriteMutation();
+
+  const handleRemoveFavorite = () => {
+    toggleSaveJob(job.id);
+
+    const favoriteId = getFavoriteIdByJobId(job.id);
+    if (favoriteId) {
+      deleteFavorite(favoriteId);
+    }
+  };
+
   return (
     <Card key={job.id} className='overflow-hidden'>
       <CardContent className='p-4'>
@@ -21,7 +35,7 @@ export default function InterestCard({
           <Button
             variant='ghost'
             size='icon'
-            onClick={() => toggleSaveJob(job.id)}
+            onClick={handleRemoveFavorite}
             className='h-8 w-8'
           >
             <Heart className='h-5 w-5 fill-primary text-primary' />

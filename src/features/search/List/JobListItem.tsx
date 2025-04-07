@@ -4,14 +4,39 @@ import { format, isValid } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { useJobStore } from "@/store/Job/store";
+import {
+  useAddFavoriteMutation,
+  useDeleteFavoriteMutation,
+} from "@/entities/favorite/queries";
 
 interface JobListItemProps {
   job: Job;
 }
 
 export default function JobListItem({ job }: JobListItemProps) {
-  const { savedJobs, toggleSaveJob } = useJobStore();
-  const isSaved = savedJobs.includes(job.id);
+  const { savedJobIds, favorites, getFavoriteIdByJobId, toggleSaveJob } =
+    useJobStore();
+  //  zustand UI 선 업데이트 (클라이언트)
+  const isSaved =
+    savedJobIds.includes(job.id) ||
+    favorites.some((fav) => String(fav.jobId) === String(job.id));
+
+  //  API 데이터 업데이트 (서버)
+  const { mutate: addFavorite } = useAddFavoriteMutation();
+  const { mutate: deleteFavorite } = useDeleteFavoriteMutation();
+
+  const handleToggleFavorite = () => {
+    toggleSaveJob(job.id);
+
+    if (isSaved) {
+      const favoriteId = getFavoriteIdByJobId(job.id);
+      if (favoriteId) {
+        deleteFavorite(favoriteId);
+      }
+    } else {
+      addFavorite({ jobId: job.id });
+    }
+  };
 
   const getDueTimeDisplay = () => {
     if (!job.dueTime) {
@@ -91,7 +116,7 @@ export default function JobListItem({ job }: JobListItemProps) {
           <Button
             variant='ghost'
             size='icon'
-            onClick={() => toggleSaveJob(job.id)}
+            onClick={handleToggleFavorite}
             className='h-8 w-8'
           >
             <Heart
