@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Job } from "@/shared/lib/sample";
+import { Job } from "@/entities/job/model";
 import { Heart, MapPin, Briefcase } from "lucide-react";
 
 export default function InterestCard({
@@ -32,10 +32,12 @@ export default function InterestCard({
           <span>{job.location}</span>
           <span className='text-xs'>•</span>
           <Briefcase className='h-3.5 w-3.5' />
-          <span>{job.experience}</span>
+          <span>{job.experience || "경력 무관"}</span>
         </div>
         <div className='flex justify-between items-center mt-3'>
-          <span className='text-xs text-muted-foreground'>{job.posted}</span>
+          <span className='text-xs text-muted-foreground'>
+            {job.postedDate}
+          </span>
           <Button size='sm'>지원하기</Button>
         </div>
       </CardContent>

@@ -1,63 +1,86 @@
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { CardContent } from "@/components/ui/card";
-import { jobs } from "@/shared/lib/sample";
-import { Heart, MapPin, Briefcase } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { useJobStore } from "@/store/Job/store";
+import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
+import { useInfiniteJobsQuery } from "@/entities/job/queries";
+import JobListItem from "./JobListItem";
 
-export default function ListItems() {
-  const { savedJobs, toggleSaveJob } = useJobStore();
+interface ListItemsProps {
+  category?: string;
+  keyword?: string;
+  limit?: number;
+}
+
+export default function ListItems({
+  category,
+  keyword,
+  limit = 10,
+}: ListItemsProps) {
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+    triggerOnce: false,
+  });
+
+  const queryParams = {
+    limit,
+    ...(category && { category }),
+  };
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteJobsQuery(queryParams);
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  if (isLoading) {
+    return (
+      <div className='flex justify-center py-10'>
+        <div className='animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full'></div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className='text-center py-10 text-destructive'>
+        <p className='text-lg font-medium'>데이터를 불러올 수 없습니다</p>
+        <p className='text-sm mt-2'>다시 시도해주세요</p>
+      </div>
+    );
+  }
+
+  if (!data || data.pages[0].jobs.length === 0) {
+    return (
+      <div className='text-center py-10 text-muted-foreground'>
+        <p className='text-lg font-medium'>검색 결과가 없습니다</p>
+        <p className='text-sm mt-2'>다른 검색어나 필터를 시도해보세요</p>
+      </div>
+    );
+  }
 
   return (
     <div className='space-y-3'>
-      {jobs.map((job) => (
-        <Card key={job.id} className='overflow-hidden'>
-          <CardContent className='p-4'>
-            <div className='flex justify-between items-start'>
-              <div>
-                <h3 className='font-bold'>{job.title}</h3>
-                <p className='text-sm text-muted-foreground'>{job.company}</p>
-              </div>
-              <Button
-                variant='ghost'
-                size='icon'
-                onClick={() => toggleSaveJob(job.id)}
-                className='h-8 w-8'
-              >
-                <Heart
-                  className={`h-5 w-5 ${
-                    savedJobs.includes(job.id)
-                      ? "fill-primary text-primary"
-                      : "text-muted-foreground"
-                  }`}
-                />
-              </Button>
-            </div>
-            <div className='flex items-center gap-2 mt-2 text-sm text-muted-foreground'>
-              <MapPin className='h-3.5 w-3.5' />
-              <span>{job.location}</span>
-              <span className='text-xs'>•</span>
-              <Briefcase className='h-3.5 w-3.5' />
-              <span>{job.experience}</span>
-            </div>
-            <p className='mt-2 text-sm line-clamp-2'>{job.description}</p>
-            <div className='flex flex-wrap gap-1 mt-3'>
-              {job.tags.map((tag) => (
-                <Badge key={tag} variant='secondary' className='text-xs'>
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-            <div className='flex justify-between items-center mt-3'>
-              <span className='text-xs text-muted-foreground'>
-                {job.posted}
-              </span>
-              <Button size='sm'>상세보기</Button>
-            </div>
-          </CardContent>
-        </Card>
+      {data.pages.map((page, pageIndex) => (
+        <div key={pageIndex}>
+          {page.jobs.map((job) => (
+            <JobListItem key={job.id} job={job} />
+          ))}
+        </div>
       ))}
+
+      {/* 스크롤 감지 영역 */}
+      <div ref={ref} className='h-10 flex items-center justify-center'>
+        {isFetchingNextPage && (
+          <div className='animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full'></div>
+        )}
+      </div>
     </div>
   );
 }

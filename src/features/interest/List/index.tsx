@@ -1,8 +1,10 @@
-import { jobs } from "@/shared/lib/sample";
 import { useJobStore } from "@/store/Job/store";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import InterestCard from "./ui/InterestCard";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/shared/api/apiClient";
+import { Job } from "@/entities/job/model";
 
 export default function InterestList({
   activeTab,
@@ -13,20 +15,43 @@ export default function InterestList({
 }) {
   const { savedJobs, toggleSaveJob } = useJobStore();
 
+  const { data: savedJobsData, isLoading } = useQuery({
+    queryKey: ["savedJobs", savedJobs],
+    queryFn: async () => {
+      if (savedJobs.length === 0) return [];
+
+      try {
+        const response = await api.get<Job[]>(
+          `/jobs/byIds?ids=${savedJobs.join(",")}`
+        );
+        return response;
+      } catch (error) {
+        console.error("관심 공고 불러오기 실패:", error);
+        return [];
+      }
+    },
+    enabled: savedJobs.length > 0,
+  });
+
+  if (isLoading) {
+    return (
+      <div className='flex justify-center py-10'>
+        <div className='animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full'></div>
+      </div>
+    );
+  }
+
   return (
     <>
-      {" "}
-      {savedJobs.length > 0 ? (
+      {savedJobs.length > 0 && savedJobsData && savedJobsData.length > 0 ? (
         <div className='space-y-3'>
-          {jobs
-            .filter((job) => savedJobs.includes(job.id))
-            .map((job) => (
-              <InterestCard
-                key={job.id}
-                job={job}
-                toggleSaveJob={toggleSaveJob}
-              />
-            ))}
+          {savedJobsData.map((job) => (
+            <InterestCard
+              key={job.id}
+              job={job}
+              toggleSaveJob={toggleSaveJob}
+            />
+          ))}
         </div>
       ) : (
         <div className='flex flex-col items-center justify-center py-10 text-center'>

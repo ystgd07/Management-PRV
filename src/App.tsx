@@ -10,7 +10,8 @@ import UpdatePrompt from "./shared/ui/UpdatePrompt";
 import LoginPage from "./pages/login/page";
 import Main from "./pages/main/page";
 import AuthCallback from "./pages/auth/callback";
-import ProtectedRoute from "./shared/routes/ProtectedRoute";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./shared/api/queryClient";
 
 // 로그인 여부에 따라 리다이렉트하는 컴포넌트
 function AuthRedirect() {
@@ -25,29 +26,31 @@ function AuthRedirect() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className='mx-auto max-w-[420px] flex flex-col min-h-screen bg-background'>
-          <OfflineAlert />
-          <Routes>
-            <Route path='/' element={<AuthRedirect />} />
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <div className='mx-auto max-w-[420px] flex flex-col min-h-screen bg-background'>
+            <OfflineAlert />
+            <Routes>
+              <Route path='/' element={<AuthRedirect />} />
 
-            <Route path='/auth/callback' element={<AuthCallback />} />
+              <Route path='/auth/callback' element={<AuthCallback />} />
 
-            <Route
-              path='/main'
-              element={
-                // 인증 경로
-                <Main />
-              }
-            />
+              <Route
+                path='/main'
+                element={
+                  // 인증 경로
+                  <Main />
+                }
+              />
 
-            <Route path='*' element={<Navigate to='/' replace />} />
-          </Routes>
-          <UpdatePrompt />
-        </div>
-      </Router>
-    </AuthProvider>
+              <Route path='*' element={<Navigate to='/' replace />} />
+            </Routes>
+            <UpdatePrompt />
+          </div>
+        </Router>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
