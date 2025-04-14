@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Job } from "@/shared/lib/sample";
+import { Job } from "@/entities/job/model";
 import { Heart, MapPin, Briefcase } from "lucide-react";
+import { useJobStore } from "@/store/Job/store";
+import { useDeleteFavoriteMutation } from "@/entities/favorite/queries";
 
 export default function InterestCard({
   job,
@@ -10,6 +12,18 @@ export default function InterestCard({
   job: Job;
   toggleSaveJob: (id: string) => void;
 }) {
+  const { getFavoriteIdByJobId } = useJobStore();
+  const { mutate: deleteFavorite } = useDeleteFavoriteMutation();
+
+  const handleRemoveFavorite = () => {
+    toggleSaveJob(job.id);
+
+    const favoriteId = getFavoriteIdByJobId(job.id);
+    if (favoriteId) {
+      deleteFavorite(favoriteId);
+    }
+  };
+
   return (
     <Card key={job.id} className='overflow-hidden'>
       <CardContent className='p-4'>
@@ -21,7 +35,7 @@ export default function InterestCard({
           <Button
             variant='ghost'
             size='icon'
-            onClick={() => toggleSaveJob(job.id)}
+            onClick={handleRemoveFavorite}
             className='h-8 w-8'
           >
             <Heart className='h-5 w-5 fill-primary text-primary' />
@@ -32,10 +46,12 @@ export default function InterestCard({
           <span>{job.location}</span>
           <span className='text-xs'>•</span>
           <Briefcase className='h-3.5 w-3.5' />
-          <span>{job.experience}</span>
+          <span>{job.experience || "경력 무관"}</span>
         </div>
         <div className='flex justify-between items-center mt-3'>
-          <span className='text-xs text-muted-foreground'>{job.posted}</span>
+          <span className='text-xs text-muted-foreground'>
+            {job.postedDate}
+          </span>
           <Button size='sm'>지원하기</Button>
         </div>
       </CardContent>

@@ -1,4 +1,3 @@
-import { jobs } from "@/shared/lib/sample";
 import { useJobStore } from "@/store/Job/store";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
@@ -11,22 +10,30 @@ export default function InterestList({
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }) {
-  const { savedJobs, toggleSaveJob } = useJobStore();
+  const { toggleSaveJob, favorites } = useJobStore();
+
+  // 로딩 상태는 전역적으로 관리되므로 여기서는 별도로 처리하지 않음
+  const isLoading = false;
+
+  if (isLoading) {
+    return (
+      <div className='flex justify-center py-10'>
+        <div className='animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full'></div>
+      </div>
+    );
+  }
 
   return (
     <>
-      {" "}
-      {savedJobs.length > 0 ? (
+      {favorites && favorites.length > 0 ? (
         <div className='space-y-3'>
-          {jobs
-            .filter((job) => savedJobs.includes(job.id))
-            .map((job) => (
-              <InterestCard
-                key={job.id}
-                job={job}
-                toggleSaveJob={toggleSaveJob}
-              />
-            ))}
+          {favorites.map((favorite) => (
+            <InterestCard
+              key={favorite.id}
+              job={favorite.job!}
+              toggleSaveJob={toggleSaveJob}
+            />
+          ))}
         </div>
       ) : (
         <div className='flex flex-col items-center justify-center py-10 text-center'>
