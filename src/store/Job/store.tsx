@@ -1,10 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "sonner";
-import {
-  useAddFavoriteMutation,
-  useDeleteFavoriteMutation,
-} from "@/entities/favorite/queries";
 import { Favorite } from "@/entities/favorite/model";
 
 interface JobStore {

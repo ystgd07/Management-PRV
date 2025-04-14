@@ -18,7 +18,7 @@ export default function JobListItem({ job }: JobListItemProps) {
     useJobStore();
   //  zustand UI 선 업데이트 (클라이언트)
   const isSaved =
-    savedJobIds.includes(job.id) ||
+    savedJobIds.includes(String(job.id)) ||
     favorites.some((fav) => String(fav.jobId) === String(job.id));
 
   //  API 데이터 업데이트 (서버)
@@ -26,10 +26,10 @@ export default function JobListItem({ job }: JobListItemProps) {
   const { mutate: deleteFavorite } = useDeleteFavoriteMutation();
 
   const handleToggleFavorite = () => {
-    toggleSaveJob(job.id);
+    toggleSaveJob(String(job.id));
 
     if (isSaved) {
-      const favoriteId = getFavoriteIdByJobId(job.id);
+      const favoriteId = getFavoriteIdByJobId(String(job.id));
       if (favoriteId) {
         deleteFavorite(favoriteId);
       }

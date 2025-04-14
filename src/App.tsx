@@ -32,14 +32,11 @@ function FavoritesLoader() {
   return null;
 }
 
-// 로그인 여부에 따라 리다이렉트하는 컴포넌트
 function AuthRedirect() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // 로딩 중일 때는 아무것도 렌더링하지 않음
   if (isLoading) return null;
 
-  // 인증된 사용자는 메인 페이지로, 그렇지 않으면 로그인 페이지로
   return isAuthenticated ? <Navigate to='/main' replace /> : <LoginPage />;
 }
 

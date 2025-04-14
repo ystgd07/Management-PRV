@@ -70,13 +70,11 @@ export function useGoogleLogin(auth = useAuth()) {
         }
       }
 
-      // 기본 리다이렉트
       window.location.href = "/main";
     } catch (error: any) {
       console.error("OAuth 콜백 처리 중 오류 발생:", error);
       setError("로그인 완료 처리 중 오류가 발생했습니다.");
     } finally {
-      // 상태 정보 정리
       localStorage.removeItem("oauth_state");
     }
   };
