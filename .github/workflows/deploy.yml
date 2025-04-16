@@ -5,7 +5,7 @@ on:
     branches:
       - main      
       - dev        
-  workflow_dispatch: # 수동 실행 옵션
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -24,18 +24,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      # 추후 서버 배포 시 REACT_APP_API_URL 환경변수 설정 필요 
-      # - name: Build
-      #   run: npm run build
-      #   env:
-      #     REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+      - name: Build
+        run: npm run build
+        env:
+          REACT_APP_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+      
+      - name: Check build output
+        run: ls -la build/
           
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2  # 서울 리전
+          aws-region: ap-northeast-2
+      
+      - name: Verify AWS credentials
+        run: aws sts get-caller-identity
           
       - name: Deploy to S3
         run: aws s3 sync build/ s3://${{ secrets.S3_BUCKET }} --delete
