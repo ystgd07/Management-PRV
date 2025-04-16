@@ -15,14 +15,12 @@ let isRefreshFailed = false;
 
 // API 클라이언트 생성 함수
 const createApiClient = (): AxiosInstance => {
-  // 기본 설정으로 axios 인스턴스 생성
   const axiosInstance = axios.create({
-    baseURL: BASE_URL,
+    baseURL: "/api",
     timeout: 10000,
     headers: {
       "Content-Type": "application/json",
     },
-    // 쿠키 기반 인증을 위해 credentials 포함 설정
     withCredentials: true,
   });
 
