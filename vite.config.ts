@@ -35,12 +35,14 @@ export default defineConfig({
       workbox: {
         // 빌드 시점에 캐시할 파일 패턴 정의
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg}"],
+        // 인증 경로 제외 설정 추가
+        navigateFallbackDenylist: [/^\/auth\//, /^\/api\//, /\/oauth\//],
         // 런타임 캐시 정책 정의
         runtimeCaching: [
           // API 요청 캐시 정책
           {
-            urlPattern: /^https:\/\/api\./i,
-            handler: "NetworkFirst",
+            urlPattern: /^\/auth\/|\/oauth\/|\/api\/auth/,
+            handler: "NetworkOnly", // 항상 네트워크 요청 사용,
             options: {
               cacheName: "api-cache",
               expiration: {

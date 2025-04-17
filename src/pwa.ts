@@ -8,8 +8,25 @@ export const registerPWA = (): void => {
     window.addEventListener('load', () => {
       // Vite PWA 플러그인이 자동으로 처리
       // 페이지가 완전히 로드된 후, 서비스 워커 등록
-      // 모든 리소스 로드 후 서비스 워커를 등록하여 초기 로드 시 병목현상 방지목적 
-      console.log('PWA ready');
+      // 모든 리소스 로드 후 서비스 워커를 등록하여 초기 로드 시 병목현상 방지목적
+      // 인증 관련 경로에서는 Service Worker 등록 건너뛰기
+      if (
+        window.location.pathname.startsWith("/auth/") ||
+        window.location.pathname.includes("callback")
+      ) {
+        return;
+      }
+
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .then((registration) => {
+          console.log("SW registered: ", registration);
+        })
+        .catch((error) => {
+          console.log("SW registration failed: ", error);
+        });
+
+      console.log("PWA ready");
     });
   }
 };
