@@ -1,5 +1,3 @@
-import { User, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import logo from "@/assets/JobSync_logo.png";
 
 export default function MainHeader() {
