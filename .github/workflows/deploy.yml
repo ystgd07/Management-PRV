@@ -1,16 +1,44 @@
-name: Deploy to S3 and CloudFront
+name: Integrated CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main      
-      - dev        
+    branches: [main, dev]
+    paths:
+      - 'apps/frontend/**'
+      - 'apps/backend/**'
+      - 'apps/crawling-lambda/**'
+      - '.github/workflows/**'
   workflow_dispatch:
+    inputs:
+      deploy_target:
+        description: '배포 대상 (frontend, backend, lambda, all)'
+        required: true
+        default: 'all'
 
 jobs:
-  deploy:
+  check_changes:
     runs-on: ubuntu-latest
-    
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+      lambda: ${{ steps.filter.outputs.lambda }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'apps/frontend/**'
+            backend:
+              - 'apps/backend/**'
+            lambda:
+              - 'apps/crawling-lambda/**'
+
+  deploy_frontend:
+    needs: check_changes
+    if: ${{ needs.check_changes.outputs.frontend == 'true' || github.event.inputs.deploy_target == 'frontend' || github.event.inputs.deploy_target == 'all' }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -22,28 +50,114 @@ jobs:
           cache: 'npm'
           
       - name: Install dependencies
+        working-directory: apps/frontend
         run: npm ci
       
       - name: Build
+        working-directory: apps/frontend
         run: npm run build
         env:
           REACT_APP_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
       
-      - name: Check build output
-        run: ls -la dist/
-          
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
-
-      - name: Verify AWS credentials
-        run: aws sts get-caller-identity
           
       - name: Deploy to S3
-        run: aws s3 sync dist/ s3://${{ secrets.S3_BUCKET }} --delete
+        run: aws s3 sync apps/frontend/dist/ s3://${{ secrets.S3_BUCKET }} --delete
         
       - name: Invalidate CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+
+  deploy_backend:
+    needs: check_changes
+    if: ${{ needs.check_changes.outputs.backend == 'true' || github.event.inputs.deploy_target == 'backend' || github.event.inputs.deploy_target == 'all' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_BACK }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_BACK }}
+          aws-region: ap-northeast-2
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./apps/backend
+          push: true
+          tags: "${{ steps.login-ecr.outputs.registry }}/jobsync/backend:${{ github.sha }}"
+      
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # 기존 EC2 배포 스크립트와 동일하게 구성
+
+  deploy_lambda:
+    needs: check_changes
+    if: ${{ needs.check_changes.outputs.lambda == 'true' || github.event.inputs.deploy_target == 'lambda' || github.event.inputs.deploy_target == 'all' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Package Scraping Lambda Function
+        working-directory: apps/crawling-lambda/scraping_function
+        run: |
+          mkdir -p package
+          docker run --rm -v "$PWD":/var/task public.ecr.aws/sam/build-python3.10 pip install -r requirements.txt -t package
+          cp lambda_function.py package/
+          cd package
+          zip -r ../scraping_package.zip .
+          cd ..
+      
+      - name: Deploy Scraping Lambda Function
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_LAMBDA }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_LAMBDA }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SCRAPING_FUNCTION_NAME: ${{ secrets.SCRAPING_FUNCTION_NAME }}
+        run: |
+          aws lambda update-function-code \
+            --function-name $SCRAPING_FUNCTION_NAME \
+            --zip-file fileb://apps/crawling-lambda/scraping_function/scraping_package.zip \
+            --region $AWS_REGION
+
+      - name: Package Refresh Lambda Function
+        working-directory: apps/crawling-lambda/refresh_function
+        run: |
+          mkdir -p package
+          docker run --rm -v "$PWD":/var/task public.ecr.aws/sam/build-python3.10 pip install -r requirements.txt -t package
+          cp lambda_function.py package/
+          cd package
+          zip -r ../refresh_package.zip .
+          cd ..
+      
+      - name: Deploy Refresh Lambda Function
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          REFRESH_FUNCTION_NAME: ${{ secrets.REFRESH_FUNCTION_NAME }}
+        run: |
+          aws lambda update-function-code \
+            --function-name $REFRESH_FUNCTION_NAME \
+            --zip-file fileb://apps/crawling-lambda/refresh_function/refresh_package.zip \
+            --region $AWS_REGION
