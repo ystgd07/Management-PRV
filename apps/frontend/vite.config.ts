@@ -11,7 +11,7 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       devOptions: {
-        enabled: true, // 개발 환경에서도 PWA 활성화
+        enabled: false, // 개발 환경에서도 PWA 활성화
       },
       manifest: {
         name: "프로젝트 이름",

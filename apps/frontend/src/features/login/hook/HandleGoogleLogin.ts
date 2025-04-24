@@ -10,7 +10,12 @@ export function useGoogleLogin(auth = useAuth()) {
     try {
       resetAuthState();
 
-      const apiBaseUrl = import.meta.env.VITE_API_URL || "";
+      let apiBaseUrl = import.meta.env.VITE_API_URL || "";
+
+      if (apiBaseUrl.endsWith("/api")) {
+        // '/api'를 제거한 URL 구성
+        apiBaseUrl = apiBaseUrl.replace(/\/api$/, "");
+      }
 
       // OAuth 상태 파라미터 추가 (CSRF 방지)
       const state = btoa(

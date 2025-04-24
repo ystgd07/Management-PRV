@@ -6,8 +6,6 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 
-// 개발용 API URL 로컬
-const BASE_URL = import.meta.env.VITE_API_URL;
 
 // 리프레시 관련 상태 관리 (전역 변수)
 let isRefreshing = false;
@@ -16,7 +14,7 @@ let isRefreshFailed = false;
 // API 클라이언트 생성 함수
 const createApiClient = (): AxiosInstance => {
   const axiosInstance = axios.create({
-    baseURL: "/api",
+    baseURL: import.meta.env.VITE_API_URL || "/api",
     timeout: 10000,
     headers: {
       "Content-Type": "application/json",

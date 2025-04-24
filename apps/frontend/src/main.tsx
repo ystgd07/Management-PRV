@@ -5,7 +5,7 @@ import App from './App.tsx'
 import { registerPWA } from './pwa'
 
 // PWA 등록
-registerPWA();
+// registerPWA();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
