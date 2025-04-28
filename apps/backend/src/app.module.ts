@@ -10,6 +10,12 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
 import { SearchModule } from './modules/search/search.module';
 import { Job } from './modules/jobs/entities/job.entity';
 import { FavoriteJob } from './modules/favorites/entities/favorite-job.entity';
+import { ApplyModule } from './modules/apply/apply.module';
+import {
+  Application,
+  ApplicationStage,
+  ApplicationStageHistory,
+} from './modules/apply/entities/apply.entity';
 
 @Module({
   imports: [
@@ -17,6 +23,7 @@ import { FavoriteJob } from './modules/favorites/entities/favorite-job.entity';
     JobsModule,
     FavoritesModule,
     SearchModule,
+    ApplyModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -31,6 +38,7 @@ import { FavoriteJob } from './modules/favorites/entities/favorite-job.entity';
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
         entities: [User, SocialAccount, RefreshToken, Job, FavoriteJob],
+        autoLoadEntities: true,
         synchronize: configService.get('NODE_ENV') !== 'production',
         logging: configService.get('NODE_ENV') === 'development',
         ssl: true,
