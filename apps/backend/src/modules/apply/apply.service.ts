@@ -74,13 +74,13 @@ export class ApplyService {
         message: '지원이 성공적으로 등록되었습니다.',
         application: createdApplication,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundException) {
         throw error;
       }
 
       throw new BadRequestException(
-        `지원 등록 중 오류가 발생했습니다: ${error.message}`,
+        `지원 등록 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`,
       );
     }
   }
