@@ -1,6 +1,6 @@
 export interface PostApplyRequest {
   jobId: number;
-  companyId: string;
+  companyName: string;
   position: string;
   appliedDate: string;
   nextStageDate: string;

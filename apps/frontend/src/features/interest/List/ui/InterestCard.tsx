@@ -4,6 +4,7 @@ import { Job } from "@/entities/job/model";
 import { Heart, MapPin, Briefcase } from "lucide-react";
 import { useJobStore } from "@/store/Job/store";
 import { useDeleteFavoriteMutation } from "@/entities/favorite/queries";
+import Click from "@/features/apply/Click";
 
 export default function InterestCard({
   job,
@@ -52,7 +53,7 @@ export default function InterestCard({
           <span className='text-xs text-muted-foreground'>
             {job.postedDate}
           </span>
-          <Button size='sm'>지원하기</Button>
+          <Click job={job} />
         </div>
       </CardContent>
     </Card>
