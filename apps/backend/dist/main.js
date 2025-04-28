@@ -83,7 +83,13 @@ async function bootstrap() {
         .setTitle('JobSync API')
         .setDescription('JobSync API 문서')
         .setVersion('1.0')
-        .addBearerAuth()
+        .addBearerAuth({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'JWT 인증 토큰',
+    })
         .addOAuth2({
         type: 'oauth2',
         flows: {
