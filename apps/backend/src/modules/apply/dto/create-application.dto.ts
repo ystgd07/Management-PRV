@@ -35,3 +35,32 @@ export class CreateApplicationDto {
   @IsString()
   notes?: string;
 }
+
+export class UpdateApplicationDto {
+  @ApiProperty({ description: '전형 날짜 (YYYY-MM-DD)', required: false })
+  @IsOptional()
+  @IsDateString()
+  stageDate?: string;
+
+  @ApiProperty({ description: '메모', required: false })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @ApiProperty({
+    description: '지원 현황 단계 ID',
+    required: false,
+    enum: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  })
+  @IsOptional()
+  @IsNumber()
+  currentStageId?: number;
+
+  @ApiProperty({
+    description: '다음 단계 예정일 (YYYY-MM-DD)',
+    required: false,
+  })
+  @IsOptional()
+  @IsDateString()
+  nextStageDate?: string;
+}
