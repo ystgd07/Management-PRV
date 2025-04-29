@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Req, UseGuards, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+  Body,
+  Param,
+  Patch,
+  ParseIntPipe,
+} from '@nestjs/common';
 import {
   ApiOperation,
   ApiBearerAuth,
@@ -9,7 +19,10 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CreateApplicationDto } from './dto/create-application.dto';
+import {
+  CreateApplicationDto,
+  UpdateApplicationDto,
+} from './dto/create-application.dto';
 import { ApplyService } from './apply.service';
 import { Application } from './entities/apply.entity';
 import { Request } from 'express';
@@ -39,7 +52,7 @@ export class ApplyController {
   }
 
   /**
-   * 유저의 지원 기록을 조회합니다.
+   * 유저의 지원 기록을 조회
    */
   @Get()
   @ApiOperation({ summary: '유저 지원 기록 조회' })
@@ -51,5 +64,16 @@ export class ApplyController {
   ): Promise<{ applications: Application[] }> {
     const userId = req.user.id;
     return this.applyService.getUserApplications(userId);
+  }
+
+  /**
+   * 지원 기록을 수정
+   */
+  @Patch(':id')
+  async updateApplication(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateApplicationDto,
+  ) {
+    return this.applyService.updateApplication(id, dto);
   }
 }
