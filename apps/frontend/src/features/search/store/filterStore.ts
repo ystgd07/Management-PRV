@@ -15,26 +15,21 @@ export interface FilterState {
   selectedRegions: string[];
   experienceLevel: number; // 0(신입) ~ 10(10년 이상)
 
-  // 액션
   toggleCategory: (category: string) => void;
   toggleRegion: (region: string) => void;
   setExperienceLevel: (level: number) => void;
   resetFilters: () => void;
 
-  // 선택된 값을 배열로 변환
   getExperienceAsArray: () => string[];
 
-  // 필터가 적용되었는지 확인
   hasActiveFilters: () => boolean;
 }
 
 export const useFilterStore = create<FilterState>((set, get) => ({
-  // 초기 상태
   selectedCategories: [],
   selectedRegions: [],
   experienceLevel: 0,
 
-  // 액션
   toggleCategory: (category: string) =>
     set((state) => ({
       selectedCategories: state.selectedCategories.includes(category)
@@ -65,7 +60,6 @@ export const useFilterStore = create<FilterState>((set, get) => ({
     return ALL_EXPERIENCES.slice(0, level + 1);
   },
 
-  // 활성화된 필터가 있는지 확인
   hasActiveFilters: () => {
     const { selectedCategories, selectedRegions, experienceLevel } = get();
     return (
