@@ -19,7 +19,6 @@ const favorites_module_1 = require("./modules/favorites/favorites.module");
 const search_module_1 = require("./modules/search/search.module");
 const job_entity_1 = require("./modules/jobs/entities/job.entity");
 const favorite_job_entity_1 = require("./modules/favorites/entities/favorite-job.entity");
-const apply_module_1 = require("./modules/apply/apply.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -30,7 +29,6 @@ exports.AppModule = AppModule = __decorate([
             jobs_module_1.JobsModule,
             favorites_module_1.FavoritesModule,
             search_module_1.SearchModule,
-            apply_module_1.ApplyModule,
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
             }),
@@ -45,7 +43,6 @@ exports.AppModule = AppModule = __decorate([
                     password: configService.get('DATABASE_PASSWORD'),
                     database: configService.get('DATABASE_NAME'),
                     entities: [user_entity_1.User, social_account_entity_1.SocialAccount, refresh_token_entity_1.RefreshToken, job_entity_1.Job, favorite_job_entity_1.FavoriteJob],
-                    autoLoadEntities: true,
                     synchronize: configService.get('NODE_ENV') !== 'production',
                     logging: configService.get('NODE_ENV') === 'development',
                     ssl: true,
