@@ -84,22 +84,4 @@ export class ApplyService {
       );
     }
   }
-
-  /**
-   * 유저의 지원 기록을 조회합니다.
-   */
-  async getUserApplications(userId: number) {
-    try {
-      const applications = await this.applicationsRepository.find({
-        where: { userId },
-        relations: ['currentStage', 'stageHistory', 'stageHistory.stage'],
-        order: { createdAt: 'DESC' },
-      });
-      return { applications };
-    } catch (error: unknown) {
-      throw new BadRequestException(
-        `지원 기록 조회 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`,
-      );
-    }
-  }
 }
