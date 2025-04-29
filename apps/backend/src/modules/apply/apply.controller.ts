@@ -52,4 +52,5 @@ export class ApplyController {
     const userId = req.user.id;
     return this.applyService.getUserApplications(userId);
   }
+  // 지원 기록 수정
 }
