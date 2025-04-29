@@ -16,7 +16,7 @@ import { useFavoritesQuery } from "./entities/favorite/queries";
 import { useJobStore } from "./store/Job/store";
 import { useEffect } from "react";
 
-// 찜하기 데이터 로드 컴포넌트 (Feature 레이어로 나누기) #수정필요
+// 찜하기 데이터 로드 컴포넌트
 function FavoritesLoader() {
   const { isAuthenticated } = useAuth();
   const { data: favorites } = useFavoritesQuery();
