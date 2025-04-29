@@ -30,4 +30,22 @@ export class ApplyController {
     const userId = req.user.id;
     return this.applyService.createApplication(userId, createApplicationDto);
   }
+
+
+  /**
+   * 유저의 지원 기록을 조회합니다.
+   */
+  @Get()
+  @ApiOperation({ summary: '유저 지원 기록 조회' })
+  @ApiOkResponse({ description: '지원 기록 조회 성공' })
+  @ApiBadRequestResponse({ description: '잘못된 요청' })
+  @ApiUnauthorizedResponse({ description: '인증 실패' })
+  async getUserApplications(
+    @Req() req: AuthRequest,
+  ): Promise<{ applications: Application[] }> {
+    const userId = req.user.id;
+    return this.applyService.getUserApplications(userId);
+  }
+  // 지원 기록 수정
+
 }
