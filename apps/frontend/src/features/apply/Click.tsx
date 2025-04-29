@@ -27,6 +27,7 @@ export default function Click({ job }: { job: Job }) {
           notes: "",
         })
       }
+      className='cursor-pointer'
     >
       {isPending ? "지원중.." : "지원하기"}
       {isError && <div>{error.message}</div>}

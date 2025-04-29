@@ -1,16 +1,57 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { StageId } from "@/entities/apply/model";
+import { Application, StageId } from "@/entities/apply/model";
 import { useApplyQuery } from "@/entities/apply/queries";
 import { StageBadge } from "@/shared/ui/StageBadge";
 import { Briefcase } from "lucide-react";
 import { useState } from "react";
+import ApplyStatusDetail from "./ApplyStatusDetail";
 
 export default function ItemList() {
   const { data } = useApplyQuery();
   const [activeTab, setActiveTab] = useState("applications");
-  console.log("applications", data);
+
+  // 상세정보 Sheet 상태관리
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState<string>("submitted");
+  const [selectedAppId, setSelectedAppId] = useState<number | null>(null);
+
+  //  상세보기 버튼 클릭 핸들러
+  const handleDetailClick = (application: Application) => {
+    if (!application) return;
+
+    setSelectedAppId(application.id);
+    setDetailOpen(true);
+    setCurrentStatus(mapStatusToDetailStatus(application.currentStage.name));
+  };
+
+  // 상태 변경 핸들러
+  const handleStatusChange = (
+    appId: number,
+    status: string,
+    date?: string,
+    note?: string
+  ) => {
+    // 상태 변경 로직 추가(!#추후구현)
+    console.log("상태 변경", appId, status, date, note);
+  };
+
+  // 서버 응답의 상태를 DetailSheet에서 사용하는 상태 ID로 변환
+  const mapStatusToDetailStatus = (stageName: string): string => {
+    const statusMap: Record<string, string> = {
+      "서류 검토중": "reviewing",
+      과제전형: "document_passed",
+      코딩테스트: "document_passed",
+      "1차 면접": "interview_scheduled",
+      "2차 면접": "interview_scheduled",
+      "기술 면접": "interview_scheduled",
+      "인성 면접": "interview_scheduled",
+      "최종 합격": "final_passed",
+      불합격: "rejected",
+    };
+    return statusMap[stageName] || "submitted";
+  };
 
   return (
     <>
@@ -22,7 +63,9 @@ export default function ItemList() {
                 <div>
                   <h3 className='font-bold'>{application.companyName}</h3>
                   <p className='text-sm text-muted-foreground'>
-                    {application.companyName}
+                    {application.position !== ""
+                      ? application.position
+                      : application.companyName}
                   </p>
                 </div>
                 <div className='flex justify-between items-center mt-2'>
@@ -53,8 +96,12 @@ export default function ItemList() {
                   </div> */}
                 {/* )} */}
                 <div className='flex justify-end mt-3'>
-                  <Button size='sm' variant='outline'>
-                    상세보기
+                  <Button
+                    size='sm'
+                    className='cursor-pointer'
+                    onClick={() => handleDetailClick(application)}
+                  >
+                    수정
                   </Button>
                 </div>
               </CardContent>
@@ -77,6 +124,14 @@ export default function ItemList() {
           </Button>
         </div>
       )}
+      {/* 상세 정보 시트 */}
+      <ApplyStatusDetail
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        currentStatus={currentStatus}
+        applicationId={selectedAppId || 0} // null일 때 0으로 기본값 설정
+        onStatusChange={handleStatusChange}
+      />
     </>
   );
 }
