@@ -1,8 +1,15 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Application, StageId } from "@/entities/apply/model";
-import { useApplyQuery } from "@/entities/apply/queries";
+import {
+  Application,
+  StageId,
+  UpdateApplicationRequest,
+} from "@/entities/apply/model";
+import {
+  useApplyQuery,
+  useUpdateApplyMutation,
+} from "@/entities/apply/queries";
 import { StageBadge } from "@/shared/ui/StageBadge";
 import { Briefcase } from "lucide-react";
 import { useState } from "react";
@@ -11,6 +18,7 @@ import ApplyStatusDetail from "./ApplyStatusDetail";
 export default function ItemList() {
   const { data } = useApplyQuery();
   const [activeTab, setActiveTab] = useState("applications");
+  const { mutate: updateApply } = useUpdateApplyMutation();
 
   // 상세정보 Sheet 상태관리
   const [detailOpen, setDetailOpen] = useState(false);
@@ -28,27 +36,36 @@ export default function ItemList() {
 
   // 상태 변경 핸들러
   const handleStatusChange = (
-    appId: number,
-    status: string,
+    appId?: number,
+    status?: string,
     date?: string,
+    nextDate?: string,
     note?: string
   ) => {
-    // 상태 변경 로직 추가(!#추후구현)
-    console.log("상태 변경", appId, status, date, note);
+    const data: UpdateApplicationRequest = {
+      currentStageId: Number(status),
+      // stageDate 가 빈 문자열이면 아예 필드 자체를 뻄
+      ...(date ? { stageDate: date } : {}),
+      ...(nextDate ? { nextStageDate: nextDate } : {}),
+      ...(note ? { notes: note } : {}),
+    };
+    updateApply({ id: appId || 0, data });
+    setDetailOpen(false);
   };
 
   // 서버 응답의 상태를 DetailSheet에서 사용하는 상태 ID로 변환
   const mapStatusToDetailStatus = (stageName: string): string => {
     const statusMap: Record<string, string> = {
-      "서류 검토중": "reviewing",
-      과제전형: "document_passed",
-      코딩테스트: "document_passed",
-      "1차 면접": "interview_scheduled",
-      "2차 면접": "interview_scheduled",
-      "기술 면접": "interview_scheduled",
-      "인성 면접": "interview_scheduled",
-      "최종 합격": "final_passed",
-      불합격: "rejected",
+      "서류 검토중": "1",
+      과제전형: "2",
+      코딩테스트: "3",
+      "1차 면접": "4",
+      "2차 면접": "5",
+      "기술 면접": "6",
+      "인성 면접": "7",
+      "최종 합격": "8",
+      불합격: "9",
+      지원취소: "10",
     };
     return statusMap[stageName] || "submitted";
   };
