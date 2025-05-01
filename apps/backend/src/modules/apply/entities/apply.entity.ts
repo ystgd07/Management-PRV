@@ -50,7 +50,7 @@ export class Application {
   currentStageId: number;
 
   @Column({ name: 'next_stage_date', type: 'date', nullable: true })
-  nextStageDate: Date;
+  nextStageDate: Date | null;
 
   @Column({ length: 20, default: 'active' })
   status: string;
@@ -96,10 +96,10 @@ export class ApplicationStageHistory {
   startDate: Date;
 
   @Column({ name: 'end_date', type: 'date', nullable: true })
-  endDate: Date;
+  endDate: Date | null;
 
   @Column({ name: 'next_stage_date', type: 'date', nullable: true })
-  nextStageDate: Date;
+  nextStageDate: Date | null;
 
   @Column({ type: 'text', nullable: true })
   notes: string;

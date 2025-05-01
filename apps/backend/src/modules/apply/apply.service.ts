@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Application, ApplicationStageHistory } from './entities/apply.entity';
-import { DataSource, IsNull } from 'typeorm';
+import { DataSource, IsNull, MoreThan } from 'typeorm';
 import { Repository } from 'typeorm';
 import { Job } from '../jobs/entities/job.entity';
 import {
@@ -89,7 +89,7 @@ export class ApplyService {
   }
 
   /**
-   * 유저의 지원 기록을 조회합니다.
+   * 유저의 지원 기록을 조회.
    */
   async getUserApplications(userId: number) {
     try {
@@ -106,6 +106,9 @@ export class ApplyService {
     }
   }
 
+  /**
+   * 지원 기록을 수정
+   */
   async updateApplication(applicationId: number, dto: UpdateApplicationDto) {
     const application = await this.applicationsRepository.findOne({
       where: { id: applicationId },
@@ -141,6 +144,33 @@ export class ApplyService {
           application.nextStageDate = new Date(dto.nextStageDate);
           await manager.getRepository(Application).save(application);
         }
+        return manager.getRepository(Application).findOne({
+          where: { id: applicationId },
+          relations: ['currentStage', 'stageHistory', 'stageHistory.stage'],
+        });
+      }
+
+      // 0.5) 롤백 처리: 이전 단계로 돌아가는 경우
+      if (targetStageId < application.currentStageId) {
+        // 현재 단계 이후의 이력 삭제
+        await historyRepo.delete({
+          applicationId,
+          stageId: MoreThan(targetStageId),
+        });
+        // 이전 단계 이력 복원
+        const originalHistory = await historyRepo.findOne({
+          where: { applicationId, stageId: targetStageId },
+          order: { startDate: 'DESC' },
+        });
+        if (originalHistory) {
+          originalHistory.endDate = null;
+          await historyRepo.save(originalHistory);
+        }
+        // Application 단계 되돌리기
+        application.currentStageId = targetStageId;
+        await manager.getRepository(Application).save(application);
+
+        // 변경된 데이터 반환
         return manager.getRepository(Application).findOne({
           where: { id: applicationId },
           relations: ['currentStage', 'stageHistory', 'stageHistory.stage'],
