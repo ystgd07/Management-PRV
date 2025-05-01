@@ -36,7 +36,7 @@ export interface StageHistory {
 }
 
 /*
- ** 지원 기록 조회 응답 타입
+ ** 지원 기록 조회 응답 타입, 수정 응답 타입
  */
 export interface Application {
   id: number;
@@ -73,3 +73,15 @@ export type ProgressStatus =
   | "불합격";
 
 export type StageId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+
+
+export type ApplicationId = number;
+
+export interface UpdateApplicationRequest {
+  stageDate?: string;
+  notes?: string;
+  currentStageId?: number;
+  nextStageDate?: string;
+}
+
+export interface UpdateApplicationResponse extends Application {}

@@ -14,7 +14,8 @@ export interface ApplicationStatusSheetProps {
   onStatusChange: (
     applicationId: number,
     status: string,
-    date?: string,
+    stageDate?: string,
+    nextStageDate?: string,
     note?: string
   ) => void;
 }

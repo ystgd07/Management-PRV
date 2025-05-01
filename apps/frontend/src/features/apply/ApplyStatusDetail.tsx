@@ -12,7 +12,6 @@ import {
   CheckCircle,
   ChevronRight,
   Clock,
-  FileText,
   XCircle,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -22,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ApplyStatusDetail({
   open,
@@ -34,59 +33,83 @@ export default function ApplyStatusDetail({
   const [selectedStatus, setSelectedStatus] = useState(currentStatus);
   const [statusDate, setStatusDate] = useState("");
   const [statusNote, setStatusNote] = useState("");
+  const [nextStatusDate, setNextStatusDate] = useState("");
+
+  useEffect(() => {
+    if (open) {
+      setSelectedStatus(currentStatus);
+      setStatusDate("");
+      setNextStatusDate("");
+      setStatusNote("");
+    }
+  }, [open, currentStatus]);
 
   const statuses: ApplicationStatus[] = [
     {
-      id: "submitted",
-      label: "서류 제출",
-      description: "지원서가 제출되었습니다.",
-      color: "bg-blue-100 text-blue-700",
-      icon: <FileText className='h-4 w-4' />,
-    },
-    {
-      id: "reviewing",
+      id: "1",
       label: "서류 검토중",
       description: "채용 담당자가 지원서를 검토하고 있습니다.",
       color: "bg-amber-100 text-amber-700",
       icon: <Clock className='h-4 w-4' />,
     },
     {
-      id: "document_passed",
-      label: "서류 합격",
-      description: "서류 전형에 합격하셨습니다.",
-      color: "bg-green-100 text-green-700",
-      icon: <CheckCircle className='h-4 w-4' />,
-    },
-    {
-      id: "interview_scheduled",
-      label: "면접 예정",
-      description: "면접 일정이 확정되었습니다.",
+      id: "2",
+      label: "과제전형",
+      description: "과제전형을 진행하고 있습니다.",
       color: "bg-purple-100 text-purple-700",
       icon: <Calendar className='h-4 w-4' />,
     },
     {
-      id: "interview_passed",
-      label: "면접 합격",
-      description: "면접 전형에 합격하셨습니다.",
+      id: "3",
+      label: "코딩테스트",
+      description: "코딩테스트를 진행하고 있습니다.",
+      color: "bg-purple-100 text-purple-700",
+      icon: <Calendar className='h-4 w-4' />,
+    },
+    {
+      id: "4",
+      label: "1차 면접",
+      description: "1차 면접을 진행하고 있습니다.",
       color: "bg-green-100 text-green-700",
       icon: <CheckCircle className='h-4 w-4' />,
     },
     {
-      id: "final_passed",
-      label: "최종 합격",
-      description: "최종 합격하셨습니다. 축하합니다!",
+      id: "5",
+      label: "2차 면접",
+      description: "2차 면접을 진행하고 있습니다.",
       color: "bg-green-100 text-green-700",
       icon: <CheckCircle className='h-4 w-4' />,
     },
     {
-      id: "rejected",
+      id: "6",
+      label: "기술면접",
+      description: "기술면접을 진행하고 있습니다.",
+      color: "bg-green-100 text-green-700",
+      icon: <CheckCircle className='h-4 w-4' />,
+    },
+    {
+      id: "7",
+      label: "인성면접",
+      description: "인성면접을 진행하고 있습니다.",
+      color: "bg-green-100 text-green-700",
+      icon: <CheckCircle className='h-4 w-4' />,
+    },
+    {
+      id: "8",
+      label: "최종합격",
+      description: "최종합격입니다.",
+      color: "bg-green-100 text-green-700",
+      icon: <CheckCircle className='h-4 w-4' />,
+    },
+    {
+      id: "9",
       label: "불합격",
       description: "아쉽게도 이번 기회에 함께하지 못하게 되었습니다.",
       color: "bg-red-100 text-red-700",
       icon: <XCircle className='h-4 w-4' />,
     },
     {
-      id: "cancelled",
+      id: "10",
       label: "지원 취소",
       description: "지원이 취소되었습니다.",
       color: "bg-gray-100 text-gray-700",
@@ -95,9 +118,16 @@ export default function ApplyStatusDetail({
   ];
 
   const handleSave = () => {
-    onStatusChange(applicationId, selectedStatus, statusDate, statusNote);
+    onStatusChange(
+      applicationId,
+      selectedStatus,
+      statusDate,
+      nextStatusDate,
+      statusNote
+    );
     onOpenChange(false);
   };
+  console.log("currentStatus", currentStatus);
 
   return (
     <CustomSheet open={open} onOpenChange={onOpenChange}>
@@ -108,17 +138,41 @@ export default function ApplyStatusDetail({
         <ScrollArea className='h-[calc(100vh-10rem)] py-4 mt-2'>
           <div className='space-y-6'>
             <div className='space-y-2'>
-              <h3 className='text-sm font-medium'>현재 상태</h3>
-              <div className='p-3 bg-muted rounded-md'>
-                {statuses.find((s) => s.id === currentStatus)?.label ||
-                  "상태 정보 없음"}
+              <h3 className='text-sm font-semibold'>현재 상태</h3>
+              <div className='flex items-center gap-2 p-3 bg-muted rounded-2xl border-1 border-black '>
+                <div
+                  className={cn(
+                    "p-1 rounded-full",
+                    statuses.find((s) => s.id === currentStatus)?.color
+                  )}
+                >
+                  {statuses.find((s) => s.id === currentStatus)?.icon}
+                </div>
+                <div className='text-sm font-semibold'>
+                  {statuses.find((s) => s.id === currentStatus)?.label ||
+                    "상태 정보 없음"}
+                </div>
+              </div>
+            </div>
+            <Separator />
+
+            <div className='space-y-4'>
+              <h3 className='text-sm font-semibold'>다음 단계 시작날짜</h3>
+              <div className='grid gap-2'>
+                <Label htmlFor='status-date'>날짜</Label>
+                <Input
+                  id='status-date'
+                  type='date'
+                  value={statusDate}
+                  onChange={(e) => setStatusDate(e.target.value)}
+                />
               </div>
             </div>
 
             <Separator />
 
             <div className='space-y-4'>
-              <h3 className='text-sm font-medium'>상태 선택</h3>
+              <h3 className='text-sm font-semibold'>다음 단계</h3>
               <RadioGroup
                 value={selectedStatus}
                 onValueChange={setSelectedStatus}
@@ -129,20 +183,38 @@ export default function ApplyStatusDetail({
                       key={status.id}
                       className={cn(
                         "flex items-center space-x-2 rounded-md border p-3",
-                        selectedStatus === status.id && "border-primary"
+                        selectedStatus === status.id && "border-primary",
+                        status.id === currentStatus && "bg-gray-100"
                       )}
                     >
-                      <RadioGroupItem value={status.id} id={status.id} />
+                      <RadioGroupItem
+                        value={status.id}
+                        id={status.id}
+                        disabled={status.id === currentStatus}
+                      />
                       <Label
                         htmlFor={status.id}
                         className='flex flex-1 items-center justify-between cursor-pointer'
                       >
                         <div className='flex items-center space-x-2'>
-                          <div className={cn("p-1 rounded-full", status.color)}>
+                          <div
+                            className={cn(
+                              "p-1 rounded-full",
+                              status.id === currentStatus
+                                ? "bg-gray-100"
+                                : status.color
+                            )}
+                          >
                             {status.icon}
                           </div>
                           <div>
-                            <p className='font-medium'>{status.label}</p>
+                            <p
+                              className={`font-medium ${
+                                status.id === currentStatus && "text-gray-500"
+                              }`}
+                            >
+                              {status.label}
+                            </p>
                             <p className='text-xs text-muted-foreground'>
                               {status.description}
                             </p>
@@ -159,20 +231,20 @@ export default function ApplyStatusDetail({
             <Separator />
 
             <div className='space-y-4'>
-              <h3 className='text-sm font-medium'>상태 변경 날짜</h3>
+              <h3 className='text-sm font-semibold'>다음단계 진행날짜</h3>
               <div className='grid gap-2'>
                 <Label htmlFor='status-date'>날짜</Label>
                 <Input
                   id='status-date'
                   type='date'
-                  value={statusDate}
-                  onChange={(e) => setStatusDate(e.target.value)}
+                  value={nextStatusDate}
+                  onChange={(e) => setNextStatusDate(e.target.value)}
                 />
               </div>
             </div>
 
             <div className='space-y-4'>
-              <h3 className='text-sm font-medium'>메모</h3>
+              <h3 className='text-sm font-semibold'>메모</h3>
               <div className='grid gap-2'>
                 <Label htmlFor='status-note'>메모 (선택사항)</Label>
                 <Textarea
