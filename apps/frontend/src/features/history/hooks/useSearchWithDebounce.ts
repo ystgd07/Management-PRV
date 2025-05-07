@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { debounce } from "lodash";
-
+import { useHistoryStore } from "@/store/history/store";
 export function useSearchWithDebounce(
   searchQuery: string = "",
-  setSearchQuery: (query: string) => void,
   debounceTime: number = 1000
 ) {
   const [inputValue, setInputValue] = useState(searchQuery);
+  const { setSearchQuery } = useHistoryStore();
 
   const debouncedUpdate = useCallback(
     debounce((query: string) => setSearchQuery(query), debounceTime),

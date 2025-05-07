@@ -1,4 +1,8 @@
 import { Badge } from "@/components/ui/badge";
+import { GetApplicationsResponse } from "@/entities/apply/model";
+import { getStatusById } from "@/shared/constants/applicationStatus";
+import { ApplicationStatusId } from "@/shared/constants/applicationStatus";
+import { useHistoryStore } from "@/store/history/store";
 import { formatDate } from "date-fns";
 
 // 상태에 따른 배지 색상 결정 함수
@@ -19,59 +23,41 @@ const getStatusBadgeVariant = (status: string) => {
   }
 };
 
-// 상태 ID에 따른 표시 텍스트 반환 함수
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case "submitted":
-      return "서류 제출";
-    case "reviewing":
-      return "서류 검토중";
-    case "document_passed":
-      return "서류 합격";
-    case "interview_scheduled":
-      return "면접 예정";
-    case "interview_passed":
-      return "면접 합격";
-    case "final_passed":
-      return "최종 합격";
-    case "rejected":
-      return "불합격";
-    case "cancelled":
-      return "지원 취소";
-    default:
-      return "상태 정보 없음";
-  }
+const getStatusLabel = (stageId: number) => {
+  const status = getStatusById(stageId as ApplicationStatusId);
+  return status ? status.label : "상태 정보 없음";
 };
 
-// 샘플 데이터 타입 정의
-interface StatusHistoryItem {
-  status: string;
-  date: string;
-  note: string;
-}
+export default function Title({
+  applications,
+}: {
+  applications: GetApplicationsResponse | undefined;
+}) {
+  const selectedApplicationId = useHistoryStore(
+    (state) => state.selectedApplication
+  );
 
-interface Application {
-  id: number;
-  jobTitle: string;
-  company: string;
-  status: string;
-  appliedDate: string;
-  nextStep?: string;
-  nextDate?: string | null;
-  statusHistory: StatusHistoryItem[];
-}
+  const selectedApp = applications?.applications.find(
+    (app) => app.id === selectedApplicationId
+  );
 
-export default function Title({ selectedApp }: { selectedApp: Application }) {
   return (
     <div className='space-y-2'>
-      <h2 className='text-2xl font-bold'>{selectedApp.jobTitle}</h2>
-      <p className='text-lg text-muted-foreground'>{selectedApp.company}</p>
+      <h2 className='text-2xl font-bold'>{selectedApp?.position}</h2>
+      <p className='text-lg text-muted-foreground'>
+        {selectedApp?.companyName}
+      </p>
       <div className='flex items-center gap-2 mt-1'>
         <Badge variant='outline'>
-          지원일: {formatDate(selectedApp.appliedDate, "yyyy-MM-dd")}
+          지원일:{" "}
+          {selectedApp?.appliedDate
+            ? formatDate(selectedApp?.appliedDate, "yyyy-MM-dd")
+            : "날짜 정보 없음"}
         </Badge>
-        <Badge variant={getStatusBadgeVariant(selectedApp.status)}>
-          {getStatusLabel(selectedApp.status)}
+        <Badge variant={getStatusBadgeVariant(selectedApp?.status || "")}>
+          {selectedApp?.status
+            ? getStatusLabel(selectedApp?.currentStageId || 0)
+            : "상태 정보 없음"}
         </Badge>
       </div>
     </div>

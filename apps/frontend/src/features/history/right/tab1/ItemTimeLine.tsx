@@ -15,118 +15,100 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { Save } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Dispatch } from "react";
-import { SetStateAction } from "react";
-
-interface StatusHistoryItem {
-  status: string;
-  date: string;
-  note: string;
-}
-
-interface Application {
-  id: number;
-  jobTitle: string;
-  company: string;
-  status: string;
-  appliedDate: string;
-  nextStep?: string;
-  nextDate?: string | null;
-  statusHistory: StatusHistoryItem[];
-}
+import { useState } from "react";
+import { GetApplicationsResponse } from "@/entities/apply/model";
+import { useHistoryStore } from "@/store/history/store";
+import {
+  getStatusById,
+  ApplicationStatusId,
+} from "@/shared/constants/applicationStatus";
 
 export default function ItemTimeLine({
-  selectedApp,
-  expandedStatus,
-  editingNote,
-  setEditingNote,
-  noteText,
-  setNoteText,
-  saveNote,
-  cancelEditing,
-  setExpandedStatus,
-}: {
-  selectedApp: Application;
-  expandedStatus: string | null;
-  editingNote: { appId: number; index: number } | null;
-  setEditingNote: Dispatch<
-    SetStateAction<{ appId: number; index: number } | null>
-  >;
-  noteText: string;
-  setNoteText: Dispatch<SetStateAction<string>>;
-  saveNote: () => void;
-  cancelEditing: () => void;
-  setExpandedStatus: Dispatch<SetStateAction<string | null>>;
+  applications,
+}: // expandedStatus,
+// editingNote,
+// setEditingNote,
+// noteText,
+// setNoteText,
+// saveNote,
+// cancelEditing,
+// setExpandedStatus,
+{
+  applications: GetApplicationsResponse | undefined;
+  // expandedStatus: string | null;
+  // editingNote: { appId: number; index: number } | null;
+  // setEditingNote: Dispatch<
+  //   SetStateAction<{ appId: number; index: number } | null>
+  // >;
+  // noteText: string;
+  // setNoteText: Dispatch<SetStateAction<string>>;
+  // saveNote: () => void;
+  // cancelEditing: () => void;
+  // setExpandedStatus: Dispatch<SetStateAction<string | null>>;
 }) {
-  // 상태 ID에 따른 표시 텍스트 반환 함수
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "submitted":
-        return "서류 제출";
-      case "reviewing":
-        return "서류 검토중";
-      case "document_passed":
-        return "서류 합격";
-      case "interview_scheduled":
-        return "면접 예정";
-      case "interview_passed":
-        return "면접 합격";
-      case "final_passed":
-        return "최종 합격";
-      case "rejected":
-        return "불합격";
-      case "cancelled":
-        return "지원 취소";
-      default:
-        return "상태 정보 없음";
-    }
+  const [noteText, setNoteText] = useState("");
+
+  const {
+    selectedApplication,
+    setEditingNote,
+    editingNote,
+    expandStatus,
+    setExpandStatus,
+  } = useHistoryStore();
+
+  const selectedApp = applications?.applications.find(
+    (app) => app.id === selectedApplication
+  );
+
+  const getStatusLabel = (stageId: number) => {
+    const status = getStatusById(stageId as ApplicationStatusId);
+    return status ? status.label : "상태 정보 없음";
   };
-  // 상태에 따른 아이콘 및 색상 정보
-  const getStatusInfo = (status: string) => {
-    switch (status) {
-      case "submitted":
-        return {
-          icon: <FileText className='h-4 w-4' />,
-          color: "bg-blue-100 text-blue-700 border-blue-200",
-        };
-      case "reviewing":
+
+  const getStatusInfo = (stageId: number) => {
+    const status = getStatusById(stageId as ApplicationStatusId);
+
+    if (!status) {
+      return {
+        icon: <Clock className='h-4 w-4' />,
+        color: "bg-gray-100 text-gray-700 border-gray-200",
+      };
+    }
+
+    // 상태 ID에 따라 다른 아이콘과 색상 반환
+    switch (status.id) {
+      case 1: // 서류 검토중
         return {
           icon: <Clock className='h-4 w-4' />,
           color: "bg-amber-100 text-amber-700 border-amber-200",
         };
-      case "document_passed":
+      case 2: // 과제전형
+      case 3: // 코딩테스트
         return {
-          icon: <CheckCircle className='h-4 w-4' />,
-          color: "bg-green-100 text-green-700 border-green-200",
-        };
-      case "interview_scheduled":
-        return {
-          icon: <Calendar className='h-4 w-4' />,
+          icon: <FileText className='h-4 w-4' />,
           color: "bg-purple-100 text-purple-700 border-purple-200",
         };
-      case "interview_passed":
+      case 4: // 1차 면접
+      case 5: // 2차 면접
+      case 6: // 기술 면접
+      case 7: // 인성 면접
+        return {
+          icon: <Calendar className='h-4 w-4' />,
+          color: "bg-blue-100 text-blue-700 border-blue-200",
+        };
+      case 8: // 최종 합격
         return {
           icon: <CheckCircle className='h-4 w-4' />,
           color: "bg-green-100 text-green-700 border-green-200",
         };
-      case "final_passed":
-        return {
-          icon: <CheckCircle className='h-4 w-4' />,
-          color: "bg-green-100 text-green-700 border-green-200",
-        };
-      case "rejected":
+      case 9: // 불합격
         return {
           icon: <XCircle className='h-4 w-4' />,
           color: "bg-red-100 text-red-700 border-red-200",
         };
-      case "cancelled":
-        return {
-          icon: <AlertCircle className='h-4 w-4' />,
-          color: "bg-gray-100 text-gray-700 border-gray-200",
-        };
       default:
         return {
-          icon: <Clock className='h-4 w-4' />,
+          icon: <AlertCircle className='h-4 w-4' />,
           color: "bg-gray-100 text-gray-700 border-gray-200",
         };
     }
@@ -142,10 +124,10 @@ export default function ItemTimeLine({
   };
 
   const toggleExpand = (status: string) => {
-    if (expandedStatus === status) {
-      setExpandedStatus(null);
+    if (expandStatus === status) {
+      setExpandStatus(null);
     } else {
-      setExpandedStatus(status);
+      setExpandStatus(status);
     }
   };
 
@@ -164,20 +146,21 @@ export default function ItemTimeLine({
           aria-hidden='true'
           style={{ transform: "translateX(-50%)" }}
         />
-        {selectedApp.statusHistory.map((historyItem, index) => {
-          const { icon, color } = getStatusInfo(historyItem.status);
-          const isLast = index === selectedApp.statusHistory.length - 1;
-          const isExpanded =
-            expandedStatus === `${historyItem.status}-${index}` ||
-            (editingNote?.appId === selectedApp.id &&
-              editingNote?.index === index);
+        {selectedApp?.stageHistory.map((historyItem, index) => {
+          const { icon, color } = getStatusInfo(historyItem.stage.id);
+          const isLast = index === selectedApp.stageHistory.length - 1;
+
+          // 현재 페이지에서 수정 중인 메모인지 확인 (선택된 공고의 히스토리인지 확인)
           const isEditing =
             editingNote?.appId === selectedApp.id &&
             editingNote?.index === index;
 
+          const isExpanded =
+            expandStatus === `${historyItem.stage.name}-${index}` || isEditing;
+
           return (
             <div
-              key={`${historyItem.status}-${index}`}
+              key={`${historyItem.stage.id}-${index}`}
               className='relative pl-8'
             >
               {/* Timeline dot */}
@@ -202,10 +185,10 @@ export default function ItemTimeLine({
                 <div className='flex items-center justify-between'>
                   <div className='flex flex-col items-start'>
                     <span className='font-medium'>
-                      {getStatusLabel(historyItem.status)}
+                      {getStatusLabel(historyItem.stageId)}
                     </span>
                     <span className='text-sm text-muted-foreground'>
-                      {formatDate(historyItem.date, "yyyy-MM-dd")}
+                      {formatDate(historyItem.startDate, "yyyy-MM-dd")}
                     </span>
                   </div>
                   <div className='flex items-center gap-1'>
@@ -217,7 +200,7 @@ export default function ItemTimeLine({
                           startEditingNote(
                             selectedApp.id,
                             index,
-                            historyItem.note
+                            historyItem.notes
                           )
                         }
                         aria-label='메모 수정'
@@ -230,7 +213,7 @@ export default function ItemTimeLine({
                         variant='ghost'
                         size='icon'
                         onClick={() =>
-                          toggleExpand(`${historyItem.status}-${index}`)
+                          toggleExpand(`${historyItem.stage.name}-${index}`)
                         }
                         aria-label={isExpanded ? "접기" : "펼치기"}
                       >
@@ -244,7 +227,6 @@ export default function ItemTimeLine({
                   </div>
                 </div>
 
-                {/* Note content or edit form */}
                 {isExpanded && (
                   <div className='mt-3 pt-3 border-t'>
                     {isEditing ? (
@@ -259,12 +241,12 @@ export default function ItemTimeLine({
                           <Button
                             variant='outline'
                             size='sm'
-                            onClick={cancelEditing}
+                            onClick={() => setEditingNote(null)}
                           >
                             <X className='h-3.5 w-3.5 mr-1' />
                             취소
                           </Button>
-                          <Button size='sm' onClick={saveNote}>
+                          <Button size='sm'>
                             <Save className='h-3.5 w-3.5 mr-1' />
                             저장
                           </Button>
@@ -272,8 +254,8 @@ export default function ItemTimeLine({
                       </div>
                     ) : (
                       <div className='text-sm'>
-                        {historyItem.note ? (
-                          <p>{historyItem.note}</p>
+                        {historyItem.notes ? (
+                          <p>{historyItem.notes}</p>
                         ) : (
                           <p className='text-muted-foreground italic'>
                             메모가 없습니다. 메모를 추가하려면 수정 버튼을

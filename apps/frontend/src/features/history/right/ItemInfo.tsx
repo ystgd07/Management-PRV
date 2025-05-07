@@ -1,48 +1,13 @@
 import ItemTimeLine from "./tab1/ItemTimeLine";
 import ItemDetail from "./tab2/ItemDetail";
 import { Tabs, TabsTrigger, TabsList, TabsContent } from "@radix-ui/react-tabs";
-import { Dispatch, SetStateAction, useState } from "react";
-
-// 샘플 데이터 타입 정의
-interface StatusHistoryItem {
-  status: string;
-  date: string;
-  note: string;
-}
-
-interface Application {
-  id: number;
-  jobTitle: string;
-  company: string;
-  status: string;
-  appliedDate: string;
-  nextStep?: string;
-  nextDate?: string | null;
-  statusHistory: StatusHistoryItem[];
-}
+import { useState } from "react";
+import { GetApplicationsResponse } from "@/entities/apply/model";
 
 export default function ItemInfo({
-  selectedApp,
-  expandedStatus,
-  editingNote,
-  setEditingNote,
-  noteText,
-  setNoteText,
-  saveNote,
-  cancelEditing,
-  setExpandedStatus,
+  applications,
 }: {
-  selectedApp: Application;
-  expandedStatus: string | null;
-  editingNote: { appId: number; index: number } | null;
-  setEditingNote: Dispatch<
-    SetStateAction<{ appId: number; index: number } | null>
-  >;
-  noteText: string;
-  setNoteText: Dispatch<SetStateAction<string>>;
-  saveNote: () => void;
-  cancelEditing: () => void;
-  setExpandedStatus: Dispatch<SetStateAction<string | null>>;
+  applications: GetApplicationsResponse | undefined;
 }) {
   const [activeTab, setActiveTab] = useState<string>("timeline");
 
@@ -69,20 +34,10 @@ export default function ItemInfo({
         </TabsTrigger>
       </TabsList>
       <TabsContent value='timeline' className='mt-4 space-y-6'>
-        <ItemTimeLine
-          selectedApp={selectedApp}
-          expandedStatus={expandedStatus}
-          editingNote={editingNote}
-          setEditingNote={setEditingNote}
-          noteText={noteText}
-          setNoteText={setNoteText}
-          saveNote={saveNote}
-          cancelEditing={cancelEditing}
-          setExpandedStatus={setExpandedStatus}
-        ></ItemTimeLine>
+        <ItemTimeLine applications={applications}></ItemTimeLine>
       </TabsContent>
       <TabsContent value='detail' className='mt-4 space-y-6'>
-        <ItemDetail selectedApp={selectedApp}></ItemDetail>
+        <ItemDetail applications={applications}></ItemDetail>
       </TabsContent>
     </Tabs>
   );
