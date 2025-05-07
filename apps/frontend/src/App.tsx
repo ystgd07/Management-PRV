@@ -15,6 +15,7 @@ import { queryClient } from "./shared/api/queryClient";
 import { useFavoritesQuery } from "./entities/favorite/queries";
 import { useJobStore } from "./store/Job/store";
 import { useEffect } from "react";
+import HistoryPage from "./pages/history/page";
 
 // 찜하기 데이터 로드 컴포넌트 (Feature 레이어로 나누기) #수정필요
 function FavoritesLoader() {
@@ -61,6 +62,8 @@ function App() {
                   <Main />
                 }
               />
+
+              <Route path='/history' element={<HistoryPage />} />
 
               <Route path='*' element={<Navigate to='/' replace />} />
             </Routes>
