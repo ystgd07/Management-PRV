@@ -41,11 +41,7 @@ export default function LeftContainer({
       <div className='text-sm text-muted-foreground'>
         {applications.length}개의 지원 내역이 있습니다.
       </div>
-      <ItemList
-        applications={applications}
-        selectedApplication={selectedApplication}
-        setSelectedApplication={setSelectedApplication}
-      />
+      <ItemList applications={applications} />
     </div>
   );
 }
