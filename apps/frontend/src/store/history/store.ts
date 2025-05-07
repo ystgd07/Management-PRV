@@ -17,16 +17,21 @@ interface HistoryStore {
    ** @param status: ApplicationStatusId[](각 상태별 ID 배열)
    */
   setStatusFilter: (status: ApplicationStatusId | null) => void;
-  editingNote: boolean;
+  editingNote: { appId: number; index: number } | null;
   /*
    ** @param editing: boolean(노트 수정 여부)
    */
-  setEditingNote: (editing: boolean) => void;
-  expandStatus: boolean;
+  setEditingNote: (editing: { appId: number; index: number } | null) => void;
+  expandStatus: string | null;
   /*
    ** @param expand: boolean(상태 확장 여부)
    */
-  setExpandStatus: (expand: boolean) => void;
+  setExpandStatus: (expand: string | null) => void;
+  dateSort: "newest" | "oldest";
+  /*
+   ** @param dateSort: "newest" | "oldest"(날짜 정렬 기준)
+   */
+  setDateSort: (dateSort: "newest" | "oldest") => void;
 }
 
 export const useHistoryStore = create<HistoryStore>((set) => ({
@@ -34,15 +39,13 @@ export const useHistoryStore = create<HistoryStore>((set) => ({
   setSelectedApplication: (application) =>
     set({ selectedApplication: application }),
   searchQuery: "",
-
   setSearchQuery: (query) => set({ searchQuery: query }),
   statusFilter: null,
-
   setStatusFilter: (status) => set({ statusFilter: status }),
-  editingNote: false,
-
+  editingNote: null,
   setEditingNote: (editing) => set({ editingNote: editing }),
-  expandStatus: false,
-
+  expandStatus: null,
   setExpandStatus: (expand) => set({ expandStatus: expand }),
+  dateSort: "newest",
+  setDateSort: (dateSort) => set({ dateSort }),
 }));

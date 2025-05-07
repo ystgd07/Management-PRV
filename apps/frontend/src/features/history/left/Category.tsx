@@ -5,28 +5,51 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useHistoryStore } from "@/store/history/store";
+import {
+  ApplicationStatusId,
+  getAllStatueses,
+} from "@/shared/constants/applicationStatus";
 
 export default function Category() {
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [dateSort, setDateSort] = useState<string>("newest");
+  const { statusFilter, setStatusFilter, dateSort, setDateSort } =
+    useHistoryStore();
+
+  const allStatuses = getAllStatueses();
+
+  // 상태 ID → 문자열 변환 함수
+  const getStatusValue = (id: ApplicationStatusId | null) => {
+    if (id === null) return "all";
+    return id.toString();
+  };
+
+  // 문자열 → 상태 ID 변환 함수
+  const handleStatusChange = (value: string) => {
+    if (value === "all") {
+      setStatusFilter(null);
+    } else {
+      // 숫자로 변환 (문자열 "1" → 숫자 1)
+      const numId = parseInt(value, 10) as ApplicationStatusId;
+      setStatusFilter(numId);
+    }
+  };
 
   return (
     <div className='flex gap-2'>
-      <Select value={statusFilter} onValueChange={setStatusFilter}>
+      <Select
+        value={getStatusValue(statusFilter)}
+        onValueChange={(value) => handleStatusChange(value)}
+      >
         <SelectTrigger className='flex-1'>
           <SelectValue placeholder='상태 필터' />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value='all'>모든 상태</SelectItem>
-          <SelectItem value='submitted'>서류 제출</SelectItem>
-          <SelectItem value='reviewing'>서류 검토중</SelectItem>
-          <SelectItem value='document_passed'>서류 합격</SelectItem>
-          <SelectItem value='interview_scheduled'>면접 예정</SelectItem>
-          <SelectItem value='interview_passed'>면접 합격</SelectItem>
-          <SelectItem value='final_passed'>최종 합격</SelectItem>
-          <SelectItem value='rejected'>불합격</SelectItem>
-          <SelectItem value='cancelled'>지원 취소</SelectItem>
+          {allStatuses.map((status) => (
+            <SelectItem key={status.id} value={status.id.toString()}>
+              {status.label}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
