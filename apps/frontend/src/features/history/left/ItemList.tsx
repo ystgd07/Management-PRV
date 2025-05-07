@@ -5,6 +5,7 @@ import { Calendar } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDate } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { useHistoryStore } from "@/store/history/store";
 
 // 샘플 데이터 타입 정의
 interface StatusHistoryItem {
@@ -26,12 +27,8 @@ interface Application {
 
 export default function ItemList({
   applications,
-  selectedApplication,
-  setSelectedApplication,
 }: {
   applications: Application[];
-  selectedApplication: number | null;
-  setSelectedApplication: (id: number) => void;
 }) {
   // 상태 ID에 따른 표시 텍스트 반환 함수
   const getStatusLabel = (status: string) => {
@@ -74,6 +71,8 @@ export default function ItemList({
         return "secondary";
     }
   };
+
+  const { selectedApplication, setSelectedApplication } = useHistoryStore();
 
   return (
     <ScrollArea className='h-[calc(100vh-280px)]'>
