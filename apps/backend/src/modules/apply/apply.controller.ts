@@ -26,6 +26,7 @@ import {
 import { ApplyService } from './apply.service';
 import { Application } from './entities/apply.entity';
 import { Request } from 'express';
+import { UpdateHistoryNoteDto } from './dto/update-history-note.dto';
 
 interface AuthRequest extends Request {
   user: { id: number };
@@ -75,5 +76,18 @@ export class ApplyController {
     @Body() dto: UpdateApplicationDto,
   ) {
     return this.applyService.updateApplication(id, dto);
+  }
+
+  /**
+   * 이력 메모 수정
+   */
+  @Patch('history/:id/note')
+  async updateHistoryNote(
+    @Param('id', ParseIntPipe) historyId: number,
+    @Body() dto: UpdateHistoryNoteDto,
+    @Req() req: AuthRequest,
+  ): Promise<{ message: string }> {
+    const userId = req.user.id;
+    return this.applyService.updateHistoryNote(historyId, dto.notes, userId);
   }
 }
