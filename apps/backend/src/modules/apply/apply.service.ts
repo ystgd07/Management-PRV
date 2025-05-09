@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -216,5 +217,30 @@ export class ApplyService {
         relations: ['currentStage', 'stageHistory', 'stageHistory.stage'],
       });
     });
+  }
+
+  /**
+   * 이력 메모 수정
+   */
+  async updateHistoryNote(historyId: number, notes: string, userId: number) {
+    const history = await this.stageHistoryRepository.findOne({
+      where: { id: historyId },
+      relations: ['application'],
+    });
+
+    if (!history) {
+      throw new NotFoundException('히스토리 기록을 찾을 수 없습니다.');
+    }
+
+    if (history.application.userId !== userId) {
+      throw new ForbiddenException('권한이 없습니다.');
+    }
+
+    history.notes = notes;
+    await this.stageHistoryRepository.save(history);
+
+    return {
+      message: '노트가 성공적으로 업데이트 되었습니다.',
+    };
   }
 }
