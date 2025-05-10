@@ -14,8 +14,19 @@ export const postApply = async (
   return api.post<PostApplyResponse>("/apply", data);
 };
 
+// stageHistory 오름차순 정렬 유틸
+const sortStageHistory = (applications : GetApplicationsResponse) => {
+  return {
+    applications: applications.applications.map(app => ({
+      ...app,
+      stageHistory: [...app.stageHistory].sort((a, b) => a.id - b.id),
+    })),
+  };
+};
+
 export const getApply = async (): Promise<GetApplicationsResponse> => {
-  return api.get<GetApplicationsResponse>("/apply");
+  const response = await api.get<GetApplicationsResponse>("/apply");
+  return sortStageHistory(response);
 };
 
 export const updateApply = async (
