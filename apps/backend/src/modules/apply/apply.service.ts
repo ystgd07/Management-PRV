@@ -97,7 +97,7 @@ export class ApplyService {
       const applications = await this.applicationsRepository.find({
         where: { userId },
         relations: ['currentStage', 'stageHistory', 'stageHistory.stage'],
-        order: { createdAt: 'DESC' },
+        order: { createdAt: 'DESC', stageHistory: { id: 'ASC' } },
       });
       return { applications };
     } catch (error: unknown) {
