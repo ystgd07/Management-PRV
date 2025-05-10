@@ -7,6 +7,7 @@ import {
   Edit2,
   Calendar,
   FileText,
+  Loader2,
 } from "lucide-react";
 import { formatDate } from "date-fns";
 import { ChevronRight } from "lucide-react";
@@ -22,31 +23,16 @@ import {
   getStatusById,
   ApplicationStatusId,
 } from "@/shared/constants/applicationStatus";
+import { usePatchHistoryMutation } from "@/entities/history/queries";
+import { toast } from "sonner";
 
 export default function ItemTimeLine({
   applications,
-}: // expandedStatus,
-// editingNote,
-// setEditingNote,
-// noteText,
-// setNoteText,
-// saveNote,
-// cancelEditing,
-// setExpandedStatus,
-{
+}: {
   applications: GetApplicationsResponse | undefined;
-  // expandedStatus: string | null;
-  // editingNote: { appId: number; index: number } | null;
-  // setEditingNote: Dispatch<
-  //   SetStateAction<{ appId: number; index: number } | null>
-  // >;
-  // noteText: string;
-  // setNoteText: Dispatch<SetStateAction<string>>;
-  // saveNote: () => void;
-  // cancelEditing: () => void;
-  // setExpandedStatus: Dispatch<SetStateAction<string | null>>;
 }) {
   const [noteText, setNoteText] = useState("");
+  const patchHistoryMutation = usePatchHistoryMutation();
 
   const {
     selectedApplication,
@@ -55,6 +41,39 @@ export default function ItemTimeLine({
     expandStatus,
     setExpandStatus,
   } = useHistoryStore();
+
+  const [errorState, setErrorState] = useState<{
+    isError: boolean;
+    message: string;
+    code?: number;
+  }>({ isError: false, message: "" });
+
+  const handleSaveNote = async () => {
+    if (!selectedApp || editingNote === null) return;
+
+    const historyItem = selectedApp.stageHistory[editingNote.index];
+
+    setErrorState({
+      isError: false,
+      message: "",
+      code: undefined,
+    });
+
+    try {
+      await patchHistoryMutation.mutateAsync({
+        historyId: historyItem.id,
+        notes: noteText,
+      });
+      toast.success("메모가 저장되었습니다.");
+    } catch (error) {
+      const err = error as { response?: { status: number }; code?: number };
+      setErrorState({
+        isError: true,
+        message: "메모 저장 실패",
+        code: err.response?.status,
+      });
+    }
+  };
 
   const selectedApp = applications?.applications.find(
     (app) => app.id === selectedApplication
@@ -235,20 +254,56 @@ export default function ItemTimeLine({
                           value={noteText}
                           onChange={(e) => setNoteText(e.target.value)}
                           placeholder='이 단계에 대한 메모를 입력하세요...'
-                          className='min-h-[100px]'
+                          className={cn(
+                            "min-h-[100px]",
+                            errorState.isError &&
+                              "border-red-500 focus-visible:ring-red-500"
+                          )}
                         />
+
+                        {/* 오류 메시지 표시 */}
+                        {errorState.isError && (
+                          <div className='text-red-500 text-sm flex items-center gap-1 mt-1'>
+                            <AlertCircle className='h-3.5 w-3.5' />
+                            <span>
+                              {errorState.code
+                                ? `오류 ${errorState.code}: `
+                                : ""}
+                              {errorState.message}
+                            </span>
+                          </div>
+                        )}
+
                         <div className='flex justify-end gap-2'>
                           <Button
                             variant='outline'
                             size='sm'
-                            onClick={() => setEditingNote(null)}
+                            onClick={() => {
+                              setEditingNote(null);
+                              setErrorState({
+                                isError: false,
+                                message: "",
+                                code: undefined,
+                              });
+                            }}
                           >
                             <X className='h-3.5 w-3.5 mr-1' />
                             취소
                           </Button>
-                          <Button size='sm'>
-                            <Save className='h-3.5 w-3.5 mr-1' />
-                            저장
+                          <Button
+                            size='sm'
+                            onClick={handleSaveNote}
+                            disabled={patchHistoryMutation.isPending}
+                            variant={
+                              errorState.isError ? "destructive" : "default"
+                            }
+                          >
+                            {patchHistoryMutation.isPending ? (
+                              <Loader2 className='h-3.5 w-3.5 mr-1' />
+                            ) : (
+                              <Save className='h-3.5 w-3.5 mr-1' />
+                            )}
+                            {errorState.isError ? "다시 시도" : "저장"}
                           </Button>
                         </div>
                       </div>
