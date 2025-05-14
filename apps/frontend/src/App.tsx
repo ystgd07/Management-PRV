@@ -16,6 +16,7 @@ import { useFavoritesQuery } from "./entities/favorite/queries";
 import { useJobStore } from "./store/Job/store";
 import { useEffect } from "react";
 import HistoryPage from "./pages/history/page";
+import { Toaster } from "sonner";
 
 // 찜하기 데이터 로드 컴포넌트 (Feature 레이어로 나누기) #수정필요
 function FavoritesLoader() {
@@ -45,6 +46,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <Toaster position='bottom-center' theme='light' />
         <Router>
           <div className='mx-auto max-w-[420px] flex flex-col min-h-screen bg-background'>
             <OfflineAlert />
