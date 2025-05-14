@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Tabs } from "@/components/ui/tabs";
-import { Toaster } from "sonner";
 import MainHeader from "@/widget/Component/MainHeader";
-import PageRoute from "@/widget/Component/PageRoute";
 import BottonNav from "@/widget/Component/BottonNav";
 import ContentContainer from "@/features/search/ui/ContentContainer";
 import Interest from "@/pages/interest/page";
@@ -23,8 +21,6 @@ export default function JobSearchApp() {
           onValueChange={setActiveTab}
           className='w-full'
         >
-          {/* Widget: Top NAV */}
-          {/* <PageRoute /> */}
           {/* Feature UI: SearchContent Container */}
           <ContentContainer />
           {/* Page UI:Interest Tab */}

@@ -54,7 +54,6 @@ export default function FilteredListItems({
   }
 
   if (!data || data.pages[0].jobs.length === 0) {
-    console.log("필터링된 결과 없음:", { params: filterParams, data });
     return (
       <div className='text-center py-10 text-muted-foreground'>
         <p className='text-lg font-medium'>검색 결과가 없습니다</p>

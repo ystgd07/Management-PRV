@@ -127,7 +127,6 @@ export default function ApplyStatusDetail({
     );
     onOpenChange(false);
   };
-  console.log("currentStatus", currentStatus);
 
   return (
     <CustomSheet open={open} onOpenChange={onOpenChange}>
