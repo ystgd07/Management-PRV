@@ -31,6 +31,11 @@ export const useJobStore = create<JobStore>()(
           if (isAlreadySaved) {
             toast("관심 공고에서 제거되었습니다.", {
               duration: 2000,
+              icon: "💔",
+              style: {
+                backgroundColor: "#f43f5e",
+                color: "#fff",
+              },
             });
             return {
               savedJobIds: state.savedJobIds.filter((id) => id !== jobId),
@@ -38,6 +43,11 @@ export const useJobStore = create<JobStore>()(
           } else {
             toast("관심 공고에 추가되었습니다.", {
               duration: 2000,
+              icon: "💖",
+              style: {
+                backgroundColor: "#34d399",
+                color: "#fff",
+              },
             });
             return {
               savedJobIds: [...state.savedJobIds, jobId],
