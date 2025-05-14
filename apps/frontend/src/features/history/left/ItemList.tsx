@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { useHistoryStore } from "@/store/history/store";
 import { GetApplicationsResponse } from "@/entities/apply/model";
 import {
-  ApplicationStatusId,
+  getBadgeVariant,
   getStatusById,
+  ApplicationStatusId,
 } from "@/shared/constants/applicationStatus";
 
 export default function ItemList({
@@ -24,36 +25,6 @@ export default function ItemList({
     dateSort,
     searchQuery,
   } = useHistoryStore();
-
-  // id로 다시 표시용 라벨 얻기
-  const getStatusLabel = (statusId: number) => {
-    const status = getStatusById(statusId as ApplicationStatusId);
-    return status ? status.label : "상태 정보 없음";
-  };
-
-  // id에 맞는 배지 스타일 얻기
-  const getStatusBadgeVariant = (statusId: number) => {
-    const status = getStatusById(statusId as ApplicationStatusId);
-    if (!status) return "secondary";
-
-    switch (status.id) {
-      case 1: // 서류 검토중
-      case 2: // 과제전형
-      case 3: // 코딩테스트
-        return "outline";
-      case 4: // 1차 면접
-      case 5: // 2차 면접
-      case 6: // 기술 면접
-      case 7: // 인성 면접
-        return "default";
-      case 8: // 최종 합격
-        return "default";
-      case 9: // 불합격
-        return "destructive";
-      default:
-        return "secondary";
-    }
-  };
 
   const filteredApplications = applications?.applications.filter((app) => {
     // 상태 필터링
@@ -101,8 +72,17 @@ export default function ItemList({
                     {app.companyName ? app.companyName : "회사 이름 없음"}
                   </p>
                 </div>
-                <Badge variant={getStatusBadgeVariant(app.currentStageId)}>
-                  {getStatusLabel(app.currentStageId)}
+                <Badge
+                  variant={getBadgeVariant(
+                    app.currentStageId as ApplicationStatusId
+                  )}
+                  className={
+                    getStatusById(app.currentStageId as ApplicationStatusId)
+                      ?.colorClass
+                  }
+                >
+                  {getStatusById(app.currentStageId as ApplicationStatusId)
+                    ?.label || "상태 정보 없음"}
                 </Badge>
               </div>
               <div className='flex items-center gap-2 mt-2 text-xs text-muted-foreground'>
@@ -126,9 +106,10 @@ export default function ItemList({
             <p className='text-muted-foreground'>
               {" "}
               {statusFilter !== null
-                ? `선택한 상태(${getStatusLabel(
-                    statusFilter
-                  )})의 지원 내역이 없습니다.`
+                ? `선택한 상태(${
+                    getStatusById(statusFilter as ApplicationStatusId)?.label ||
+                    "상태 정보 없음"
+                  })의 지원 내역이 없습니다.`
                 : "검색 결과가 없습니다."}
             </p>
           </div>
