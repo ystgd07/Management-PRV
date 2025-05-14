@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Calendar, Heart, Search, Briefcase } from "lucide-react";
+import { Heart, Search, Briefcase } from "lucide-react";
 
 interface BottomNavProps {
   activeTab: string;
@@ -9,7 +9,7 @@ interface BottomNavProps {
 export default function BottonNav({ activeTab, setActiveTab }: BottomNavProps) {
   return (
     <nav className='sticky bottom-0 border-t bg-background p-2'>
-      <div className='grid grid-cols-4 gap-1'>
+      <div className='grid grid-cols-3 gap-1'>
         <Button
           variant={activeTab === "search" ? "default" : "ghost"}
           className='flex flex-col h-16 rounded-md'
@@ -33,14 +33,6 @@ export default function BottonNav({ activeTab, setActiveTab }: BottomNavProps) {
         >
           <Briefcase className='h-5 w-5' />
           <span className='text-xs mt-1'>지원</span>
-        </Button>
-        <Button
-          variant={activeTab === "interviews" ? "default" : "ghost"}
-          className='flex flex-col h-16 rounded-md'
-          onClick={() => setActiveTab("interviews")}
-        >
-          <Calendar className='h-5 w-5' />
-          <span className='text-xs mt-1'>면접</span>
         </Button>
       </div>
     </nav>

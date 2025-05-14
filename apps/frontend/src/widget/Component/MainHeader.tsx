@@ -6,15 +6,6 @@ export default function MainHeader() {
       <div className='flex items-center'>
         <img src={logo} alt='JobSync Logo' className='h-17 w-auto mr-2' />
       </div>
-
-      {/* <div className='flex items-center space-x-1'>
-          <Button variant='ghost' size='icon' className='h-9 w-9'>
-            <Search className='h-5 w-5 text-foreground' />
-          </Button>
-          <Button variant='ghost' size='icon' className='h-9 w-9'>
-            <User className='h-5 w-5 text-foreground' />
-          </Button>
-        </div> */}
     </header>
   );
 }

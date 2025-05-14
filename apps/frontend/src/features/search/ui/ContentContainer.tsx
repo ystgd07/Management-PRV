@@ -1,5 +1,5 @@
 import { TabsContent } from "@/components/ui/tabs";
-import { FilterParams, useUnifiedInfiniteJobsQuery } from "@/entities/job";
+import { FilterParams } from "@/entities/job";
 import { useState } from "react";
 import ActiveFilters from "../Filter/ActiveFilters";
 import SearchBar from "../Filter/SearchBar";
