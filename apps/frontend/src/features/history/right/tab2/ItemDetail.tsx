@@ -1,34 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { GetApplicationsResponse } from "@/entities/apply/model";
-import { getStatusById } from "@/shared/constants/applicationStatus";
+import {
+  getBadgeVariant,
+  getStatusById,
+} from "@/shared/constants/applicationStatus";
 import { ApplicationStatusId } from "@/shared/constants/applicationStatus";
 import { useHistoryStore } from "@/store/history/store";
 import { formatDate } from "date-fns";
-
-// 상태 ID에 따른 표시 텍스트 반환 함수
-const getStatusLabel = (stageId: number) => {
-  const status = getStatusById(stageId as ApplicationStatusId);
-  return status ? status.label : "상태 정보 없음";
-};
-
-// 상태에 따른 배지 색상 결정 함수
-const getStatusBadgeVariant = (status: string) => {
-  switch (status) {
-    case "document_passed":
-    case "interview_passed":
-    case "final_passed":
-      return "default";
-    case "reviewing":
-    case "interview_scheduled":
-      return "outline";
-    case "rejected":
-    case "cancelled":
-      return "destructive";
-    default:
-      return "secondary";
-  }
-};
 
 export default function ItemDetail({
   applications,
@@ -57,9 +36,20 @@ export default function ItemDetail({
                 <div className='flex-1'>
                   <p className='text-sm text-muted-foreground'>현재 상태</p>
                   <Badge
-                    variant={getStatusBadgeVariant(selectedApp?.status || "")}
+                    variant={getBadgeVariant(
+                      selectedApp?.currentStageId as ApplicationStatusId
+                    )}
+                    className={
+                      getStatusById(
+                        selectedApp?.currentStageId as ApplicationStatusId
+                      )?.colorClass
+                    }
                   >
-                    {getStatusLabel(selectedApp?.currentStageId || 0)}
+                    {
+                      getStatusById(
+                        selectedApp?.currentStageId as ApplicationStatusId
+                      )?.label
+                    }
                   </Badge>
                 </div>
               </div>
