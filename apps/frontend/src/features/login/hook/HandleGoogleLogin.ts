@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useAuth } from "@/shared/context/AuthContext";
 import { resetAuthState } from "@/shared/api/apiClient";
 
-export function useGoogleLogin(auth = useAuth()) {
+export function useGoogleLogin() {
   const [error, setError] = useState<string | null>(null);
-  const { checkAuthStatus, isLoading } = auth;
+  const { checkAuthStatus, isLoading } = useAuth();
 
   const handleGoogleLogin = () => {
     try {
@@ -32,9 +32,7 @@ export function useGoogleLogin(auth = useAuth()) {
       window.location.href = `${apiBaseUrl}/auth/google?state=${encodeURIComponent(
         state
       )}`;
-
-    } catch (error: any) {
-      console.error("Google 로그인 리다이렉트 중 오류 발생:", error);
+    } catch (error: unknown) {
       setError("로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
   };
@@ -76,8 +74,7 @@ export function useGoogleLogin(auth = useAuth()) {
       }
 
       window.location.href = "/main";
-    } catch (error: any) {
-      console.error("OAuth 콜백 처리 중 오류 발생:", error);
+    } catch (error: unknown) {
       setError("로그인 완료 처리 중 오류가 발생했습니다.");
     } finally {
       localStorage.removeItem("oauth_state");

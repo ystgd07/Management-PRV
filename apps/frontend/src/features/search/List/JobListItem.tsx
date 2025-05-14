@@ -127,11 +127,12 @@ export default function JobListItem({ job }: JobListItemProps) {
           </Button>
         </div>
       </div>
-      <div className='flex justify-end'>
+      {/* 추후 구현사항 */}
+      {/* <div className='flex justify-end'>
         <div className='flex justify-between items-center mt-3'>
           <Button size='sm'>상세보기</Button>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
