@@ -57,8 +57,8 @@ export default function ItemList({
           <Card
             key={app.id}
             className={cn(
-              "cursor-pointer hover:border-primary transition-colors",
-              selectedApplication === app.id && "border-primary"
+              "cursor-pointer hover:border-cyan-600 transition-colors",
+              selectedApplication === app.id && "border-cyan-400"
             )}
             onClick={() => setSelectedApplication(app.id)}
           >

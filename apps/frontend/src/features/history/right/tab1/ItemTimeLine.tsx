@@ -64,7 +64,11 @@ export default function ItemTimeLine({
         historyId: historyItem.id,
         notes: noteText,
       });
-      toast.success("메모가 저장되었습니다.");
+      toast.success("메모가 저장되었습니다.", {
+        icon: <CheckCircle className='text-green-400' />,
+        duration: 1000,
+      });
+      setEditingNote(null);
     } catch (error) {
       const err = error as { response?: { status: number }; code?: number };
       setErrorState({
@@ -198,7 +202,7 @@ export default function ItemTimeLine({
                 className={cn(
                   "p-4 rounded-lg border",
                   isLast ? "bg-background" : "bg-muted/30",
-                  isExpanded ? "border-primary" : "border-border"
+                  isExpanded ? "border-gray-400" : "border-border"
                 )}
               >
                 <div className='flex items-center justify-between'>
