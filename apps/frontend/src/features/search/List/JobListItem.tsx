@@ -1,5 +1,5 @@
 import { Job } from "@/entities/job/model";
-import { Building2, MapPin, Clock, Heart } from "lucide-react";
+import { Building2, MapPin, Clock, Heart, LinkIcon } from "lucide-react";
 import { format, isValid } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -127,12 +127,17 @@ export default function JobListItem({ job }: JobListItemProps) {
           </Button>
         </div>
       </div>
-      {/* 추후 구현사항 */}
-      {/* <div className='flex justify-end'>
+      <div className='flex justify-end'>
         <div className='flex justify-between items-center mt-3'>
-          <Button size='sm'>상세보기</Button>
+          <Button
+            size='sm'
+            onClick={() => window.open(job.detailUrl, "_blank")}
+          >
+            <LinkIcon className='h-4 w-4' />
+            상세보기
+          </Button>
         </div>
-      </div> */}
+      </div>
     </div>
   );
 }

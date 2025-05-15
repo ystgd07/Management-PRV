@@ -13,6 +13,7 @@ export interface Job {
   isRemote?: boolean;
   category?: string; // 직무 카테고리
   region?: string; // 지역
+  detailUrl?: string;
 }
 
 export interface JobsResponse {
