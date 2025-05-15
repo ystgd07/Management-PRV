@@ -109,21 +109,72 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 1) ECR 로그인
+            # 1) ECR 로그인 & 이미지 풀
             aws ecr get-login-password --region ap-northeast-2 \
-            | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-            # 2) 새 이미지 Pull
+              | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
             docker pull ${{ steps.login-ecr.outputs.registry }}/jobsync/backend:${{ github.sha }}
-            # 3) 기존 컨테이너 중지/삭제
-            docker stop jobsync-backend || true
-            docker rm jobsync-backend   || true
-            # 4) 새 컨테이너 실행
-            docker run -d \
-            --name jobsync-backend \
-            --restart=always \
-            -e NODE_ENV=production \
-            -p 3000:3000 \
-            ${{ steps.login-ecr.outputs.registry }}/jobsync/backend:${{ github.sha }}
+
+            # 2) 배포 디렉토리 및 .env 준비
+            mkdir -p ~/jobsync-backend/deploy && cd ~/jobsync-backend/deploy
+            cat > .env << EOF
+            DATABASE_HOST=${{ secrets.DATABASE_HOST }}
+            DATABASE_PORT=${{ secrets.DATABASE_PORT }}
+            DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
+            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+            DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+            ELASTICSEARCH_NODE=${{ secrets.ELASTICSEARCH_NODE }}
+            ELASTICSEARCH_USERNAME=${{ secrets.ELASTICSEARCH_USERNAME }}
+            ELASTICSEARCH_PASSWORD=${{ secrets.ELASTICSEARCH_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_ACCESS_EXPIRATION=${{ secrets.JWT_ACCESS_EXPIRATION }}
+            JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+            JWT_REFRESH_EXPIRATION=${{ secrets.JWT_REFRESH_EXPIRATION }}
+            JWT_REFRESH_EXPIRATION_SECONDS=${{ secrets.JWT_REFRESH_EXPIRATION_SECONDS }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}
+            FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+            IMAGE=${{ steps.login-ecr.outputs.registry }}/jobsync/backend:${{ github.sha }}
+            EOF
+
+            # 3) docker-compose.yml 작성
+            cat > docker-compose.yml << 'EOF'
+            version: '3'
+            services:
+              backend:
+                container_name: jobsync-backend
+                image: ${IMAGE}
+                restart: always
+                ports:
+                  - "3000:3000"
+                volumes:
+                  - ./logs:/app/logs
+                networks:
+                  - app-network
+            networks:
+              app-network:
+                driver: bridge
+            EOF
+
+            # 4) 배포·헬스체크·롤백
+            bash -c "$(cat << 'EOFSCRIPT'
+            if [ "$(docker ps -q -f name=jobsync-backend)" ]; then
+              docker rename jobsync-backend jobsync-backend-old
+              docker stop jobsync-backend-old
+            fi
+            docker-compose up -d
+            for i in {1..10}; do
+              if curl -s http://localhost:3000/search/test | grep -q "success"; then
+                [ "$(docker ps -aq -f name=jobsync-backend-old)" ] \
+                  && docker rm -f jobsync-backend-old
+                echo "Deployment successful!" && exit 0
+              fi
+              sleep 3
+            done
+            echo "Health check failed, rolling back..." && \
+            docker start jobsync-backend-old && exit 1
+            EOFSCRIPT
+            )"
 
   deploy_lambda:
     needs: check_changes
