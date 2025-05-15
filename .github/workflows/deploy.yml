@@ -112,9 +112,6 @@ jobs:
             # 1) ECR 로그인
             aws ecr get-login-password --region ap-northeast-2 \
             | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-            # 1) ECR 로그인
-            aws ecr get-login-password --region ap-northeast-2 \
-            | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
             # 2) 새 이미지 Pull
             docker pull ${{ steps.login-ecr.outputs.registry }}/jobsync/backend:${{ github.sha }}
             # 3) 기존 컨테이너 중지/삭제
