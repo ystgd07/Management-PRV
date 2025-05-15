@@ -1,12 +1,12 @@
 // 직무 카테고리 상수
 export const JOB_CATEGORIES = {
-  FRONTEND: "frontend",
-  BACKEND: "backend",
-  MOBILE: "mobile",
-  DEVOPS: "devops",
-  DATA: "data",
-  SECURITY: "security",
-  FULLSTACK: "fullstack",
+  FRONTEND: "프론트엔드",
+  BACKEND: "백엔드",
+  MOBILE: "모바일",
+  DEVOPS: "데브옵스",
+  DATA: "데이터",
+  SECURITY: "보안",
+  FULLSTACK: "풀스택",
 } as const;
 
 // 지역 상수

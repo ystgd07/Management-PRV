@@ -1,5 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { SheetContent } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -19,8 +19,11 @@ export default function FilterModal({
 }: FilterModalProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
-  const [experienceLevel, setExperienceLevel] = useState(0);
+  const [experienceLevel, setExperienceLevel] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 슬라이더 값을 0~100 범위로 변환(부드러운 애니메이션 효과를 위해)
+  const [tempLevel, setTempLevel] = useState(experienceLevel * 10); // 0~100
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
@@ -39,7 +42,7 @@ export default function FilterModal({
   };
 
   const getExperienceAsArray = (): string[] => {
-    if (experienceLevel === 0) return [];
+    if (experienceLevel === 0) return ["신입"];
     if (experienceLevel === 1) return ["신입"];
     return [`${experienceLevel}년`];
   };
@@ -68,12 +71,8 @@ export default function FilterModal({
       side='bottom'
       className='p-5 mx-auto left-0 right-0 max-w-[420px] rounded-t-lg h-[80vh] overflow-hidden'
     >
-      <SheetHeader>
-        <SheetTitle>필터</SheetTitle>
-      </SheetHeader>
       <ScrollArea className='h-full py-4'>
         <div className='space-y-6'>
-          {/* Job Categories */}
           <div className='space-y-2'>
             <h3 className='font-medium'>직무 분야</h3>
             <div className='grid grid-cols-2 gap-2'>
@@ -90,7 +89,6 @@ export default function FilterModal({
             </div>
           </div>
 
-          {/* Locations */}
           <div className='space-y-2'>
             <h3 className='font-medium'>지역</h3>
             <div className='grid grid-cols-2 gap-2'>
@@ -107,17 +105,31 @@ export default function FilterModal({
             </div>
           </div>
 
-          {/* Experience Level */}
           <div className='space-y-2'>
             <h3 className='font-medium'>경력</h3>
             <div className='px-2'>
+              {/* onValueCommit: 슬라이더 드래그가 완료 됐을 때, 실행되는 이벤트 */}
               <Slider
-                defaultValue={[experienceLevel]}
-                value={[experienceLevel]}
-                onValueChange={(values) => setExperienceLevel(values[0])}
-                max={10}
+                value={[tempLevel]}
+                onValueChange={(v) => setTempLevel(v[0])}
+                onValueCommit={(v) => setExperienceLevel(Math.round(v[0] / 10))}
                 step={1}
-              />
+                max={100}
+                className='relative px-2'
+              >
+                <Slider.Track className='h-2 bg-gray-200 rounded-full overflow-hidden'>
+                  <Slider.Range
+                    className='absolute h-full bg-blue-500
+                 transition-[width] duration-300 ease-in-out will-change-[width]'
+                  />
+                </Slider.Track>
+                <Slider.Thumb
+                  className='block w-5 h-5 bg-white border-2 border-blue-500 rounded-full shadow
+               transition-transform duration-300 ease-in-out will-change-transform
+               hover:scale-125 active:scale-150'
+                />
+              </Slider>
+
               <div className='flex justify-between mt-2 text-sm text-muted-foreground'>
                 <span>신입</span>
                 <span>{experienceLevel}년</span>
@@ -126,7 +138,6 @@ export default function FilterModal({
             </div>
           </div>
 
-          {/* Apply Filters Button */}
           <Button
             className='w-full'
             onClick={handleApplyFilters}
