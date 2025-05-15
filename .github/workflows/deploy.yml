@@ -109,7 +109,21 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 기존 EC2 배포 스크립트와 동일하게 구성
+            # 1) ECR 로그인
+            aws ecr get-login-password --region ap-northeast-2 \
+            | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+            # 2) 새 이미지 Pull
+            docker pull ${{ steps.login-ecr.outputs.registry }}/jobsync/backend:${{ github.sha }}
+            # 3) 기존 컨테이너 중지/삭제
+            docker stop jobsync-backend || true
+            docker rm jobsync-backend   || true
+            # 4) 새 컨테이너 실행
+            docker run -d \
+            --name jobsync-backend \
+            --restart=always \
+            -e NODE_ENV=production \
+            -p 3000:3000 \
+            ${{ steps.login-ecr.outputs.registry }}/jobsync/backend:${{ github.sha }}
 
   deploy_lambda:
     needs: check_changes
