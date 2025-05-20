@@ -1,8 +1,9 @@
 <div align="center">
-  
-# JobSync
-
+  <h1 style="font-size: 2em;">
+    <span style="color: black; font-weight: bold;">Job</span>
+    <span style="color: white; font-weight: bold;">Sync</span> </h1>
 </div>
+
 <div align="center">
   <img src="https://github.com/user-attachments/assets/aa9cbc2d-f86e-49be-953e-fe500c8757dd" alt="프로젝트 로고" width="400"/>
 </div>
@@ -21,7 +22,9 @@
 > 여러 채용 사이트를 돌아다니며 원하는 공고 찾기, 지원 내역 메모하기, 관리하기의 번거로움을 하나의 앱으로 해결하고자 시작된 프로젝트입니다.
 
 ✅ 웹과 모바일에서 모두 사용 가능한 **취업 어시스턴트**
+
 ✅ 최신 채용 정보 실시간 제공
+
 ✅ 관심 공고 저장 및 지원 현황 관리 기능
 
 이제 **JobSync**를 통해 더욱 효율적이고 체계적인 취업 준비를 경험하세요! ✨
