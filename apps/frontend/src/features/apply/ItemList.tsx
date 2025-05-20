@@ -1,7 +1,9 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
+import type {
   Application,
   StageId,
   UpdateApplicationRequest,
@@ -9,21 +11,38 @@ import {
 import {
   useApplyQuery,
   useUpdateApplyMutation,
+  useDeleteApplyMutation,
 } from "@/entities/apply/queries";
 import { StageBadge } from "@/shared/ui/StageBadge";
-import { Briefcase } from "lucide-react";
+import { AlertCircle, Briefcase, Trash2 } from "lucide-react";
 import { useState } from "react";
 import ApplyStatusDetail from "./ApplyStatusDetail";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function ItemList() {
   const { data } = useApplyQuery();
   const [activeTab, setActiveTab] = useState("applications");
   const { mutate: updateApply } = useUpdateApplyMutation();
+  const { mutate: deleteApply } = useDeleteApplyMutation();
 
   // 상세정보 Sheet 상태관리
   const [detailOpen, setDetailOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState<string>("submitted");
   const [selectedAppId, setSelectedAppId] = useState<number | null>(null);
+
+  // 삭제 확인 다이얼로그 상태관리
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [applicationToDelete, setApplicationToDelete] =
+    useState<Application | null>(null);
 
   //  상세보기 버튼 클릭 핸들러
   const handleDetailClick = (application: Application) => {
@@ -51,6 +70,19 @@ export default function ItemList() {
     };
     updateApply({ id: appId || 0, data });
     setDetailOpen(false);
+  };
+
+  // 삭제 버튼 클릭 핸들러
+  const handleDeleteClick = (application: Application) => {
+    setApplicationToDelete(application);
+    setDeleteDialogOpen(true);
+  };
+
+  // 삭제 확인 핸들러
+  const handleConfirmDelete = (id: number) => {
+    deleteApply(id);
+    setDeleteDialogOpen(false);
+    setApplicationToDelete(null);
   };
 
   // 서버 응답의 상태를 DetailSheet에서 사용하는 상태 ID로 변환
@@ -86,7 +118,7 @@ export default function ItemList() {
                   </p>
                 </div>
                 <div className='flex justify-between items-center mt-2'>
-                  <Badge className=' flex items-center justify-center'>
+                  <Badge className='flex items-center justify-center'>
                     {application.status === "active" ? "진행중" : "완료"}
                   </Badge>
                   <span className='text-xs text-muted-foreground'>
@@ -99,20 +131,16 @@ export default function ItemList() {
                     id={application.currentStage.id as StageId}
                   />
                 </div>
-                {/* 추후 추가 검토 필요: 다음 단계 데이터 필요 */}
-                {/* {application.nextStep && (
-                  <div className='mt-3 p-2 bg-muted rounded-md'>
-                    <p className='text-sm font-medium'>
-                      다음 단계: {application.nextStep}
-                    </p>
-                    {application.nextDate && (
-                      <p className='text-xs text-muted-foreground'>
-                        일정: {application.nextDate}
-                      </p>
-                    )}
-                  </div> */}
-                {/* )} */}
-                <div className='flex justify-end mt-3'>
+                <div className='flex justify-end gap-2 mt-3'>
+                  <Button
+                    size='sm'
+                    variant='outline'
+                    className='cursor-pointer border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 transition-colors'
+                    onClick={() => handleDeleteClick(application)}
+                  >
+                    <Trash2 className='h-4 w-4 mr-1' />
+                    삭제
+                  </Button>
                   <Button
                     size='sm'
                     className='cursor-pointer'
@@ -141,6 +169,7 @@ export default function ItemList() {
           </Button>
         </div>
       )}
+
       {/* 상세 정보 시트 */}
       <ApplyStatusDetail
         open={detailOpen}
@@ -149,6 +178,41 @@ export default function ItemList() {
         applicationId={selectedAppId || 0} // null일 때 0으로 기본값 설정
         onStatusChange={handleStatusChange}
       />
+
+      {/* 삭제 확인 다이얼로그 */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className='flex items-center gap-2'>
+              <AlertCircle className='h-5 w-5 text-destructive' />
+              지원 내역 삭제
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {applicationToDelete && (
+                <>
+                  <span className='font-medium'>
+                    {applicationToDelete.companyName}
+                  </span>
+                  {applicationToDelete.position && (
+                    <span> - {applicationToDelete.position}</span>
+                  )}
+                  <span> 지원 내역을 삭제하시겠습니까?</span>
+                  <p className='mt-2'>이 작업은 되돌릴 수 없습니다.</p>
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleConfirmDelete(applicationToDelete?.id || 0)}
+              className='bg-destructive hover:bg-destructive/90'
+            >
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

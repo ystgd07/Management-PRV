@@ -35,3 +35,7 @@ export const updateApply = async (
 ): Promise<UpdateApplicationResponse> => {
   return api.patch<UpdateApplicationResponse>(`/apply/${id}`, data);
 };
+
+export const deleteApply = async (id: ApplicationId): Promise<void> => {
+  return api.delete<void>(`/apply/${id}`);
+};
