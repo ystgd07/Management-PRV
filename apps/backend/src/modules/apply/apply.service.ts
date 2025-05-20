@@ -258,4 +258,34 @@ export class ApplyService {
       message: '노트가 성공적으로 업데이트 되었습니다.',
     };
   }
+
+  /**
+   * 지원 기록 삭제
+   */
+  async deleteApplication(
+    id: number,
+    userId: number,
+  ): Promise<{ message: string }> {
+    const application = await this.applicationsRepository.findOne({
+      where: { id, userId },
+    });
+
+    if (!application) {
+      throw new NotFoundException('지원 기록을 찾을 수 없습니다.');
+    }
+
+    return this.dataSource.transaction(async (manager) => {
+      // 1. history 내역 삭제
+      await manager
+        .getRepository(ApplicationStageHistory)
+        .delete({ applicationId: id });
+
+      // 2.지원 기록 삭제
+      await manager.getRepository(Application).delete(id);
+
+      return {
+        message: '지원 내역 및 관련 히스토리가 성공적으로 삭제되었습니다',
+      };
+    });
+  }
 }
