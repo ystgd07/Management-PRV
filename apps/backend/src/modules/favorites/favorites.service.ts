@@ -103,6 +103,8 @@ export class FavoritesService {
             annualTo: favJob.job.annualTo,
             dueTime: favJob.job.dueTime,
             position: favJob.job.position,
+            detailUrl: favJob.job.detailUrl, // 공고 링크 추가
+            isApplied: isApplied,
           },
         };
       }),

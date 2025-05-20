@@ -14,6 +14,7 @@ export interface Job {
   category?: string; // 직무 카테고리
   region?: string; // 지역
   detailUrl?: string;
+  isApplied?: boolean;
 }
 
 export interface JobsResponse {

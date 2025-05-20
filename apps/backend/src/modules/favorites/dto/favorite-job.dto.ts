@@ -41,5 +41,6 @@ export class FavoriteJobResponseDto {
     annualTo?: number;
     dueTime?: Date;
     position?: string;
+    detailUrl?: string;
   };
 }
