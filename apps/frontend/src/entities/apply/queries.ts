@@ -12,6 +12,7 @@ export const useApplyMutation = () => {
     mutationFn: (data: PostApplyRequest) => postApply(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["apply"] });
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
     },
   });
 };

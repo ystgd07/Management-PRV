@@ -4,7 +4,13 @@ import { useApplyMutation } from "@/entities/apply/queries";
 import { useCallback } from "react";
 import { Job } from "@/entities/job/model";
 
-export default function Click({ job }: { job: Job }) {
+export default function Click({
+  job,
+  isApplied,
+}: {
+  job: Job;
+  isApplied: boolean;
+}) {
   const { mutate, isPending, isError, error } = useApplyMutation();
 
   const apply = useCallback(
@@ -17,6 +23,8 @@ export default function Click({ job }: { job: Job }) {
   return (
     <Button
       size='sm'
+      variant='outline'
+      disabled={isApplied}
       onClick={() =>
         apply({
           jobId: Number(job.id),
@@ -27,9 +35,11 @@ export default function Click({ job }: { job: Job }) {
           notes: "",
         })
       }
-      className='cursor-pointer'
+      className={`cursor-pointer ${
+        isApplied ? "bg-green-300 text-white" : "bg-primary text-white"
+      }`}
     >
-      {isPending ? "지원중.." : "지원하기"}
+      {isPending ? "지원중.." : isApplied ? "지원완료" : "지원하기"}
       {isError && <div>{error.message}</div>}
     </Button>
   );
