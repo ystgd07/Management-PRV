@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/aa9cbc2d-f86e-49be-953e-fe500c8757dd" alt="프로젝트 로고" width="400"/>v1.0.0
-</div>
+  <img src="https://github.com/user-attachments/assets/aa9cbc2d-f86e-49be-953e-fe500c8757dd" alt="프로젝트 로고" width="400"/>
+</div> 
 
 > 취업 준비를 위한 **All-in-One** 어플리케이션 🚀
 
