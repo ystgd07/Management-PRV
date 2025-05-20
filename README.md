@@ -1,7 +1,8 @@
 <div align="center">
   <h1 style="font-size: 2em;">
-    <span style="color: black; font-weight: bold;">Job</span>
-    <span style="color: white; font-weight: bold;">Sync</span> </h1>
+    <span style="color: red; font-weight: bold;">Job</span>
+    <span style="color: blue; font-weight: bold;">Sync</span>
+  </h1>
 </div>
 
 <div align="center">
