@@ -29,6 +29,9 @@ export class FavoriteJobResponseDto {
   createdAt: Date;
 
   @ApiProperty()
+  isApplied: boolean;
+
+  @ApiProperty()
   job: {
     id: number;
     title: string;

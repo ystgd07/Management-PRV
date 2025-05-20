@@ -68,6 +68,23 @@ export class ApplyController {
   }
 
   /**
+   * 특정 공고에 지원했는지 확인
+   */
+  @Get('check/:jobId')
+  @ApiOperation({ summary: '특정 공고 지원 여부 확인' })
+  @ApiOkResponse({ description: '지원 여부 확인 성공' })
+  @ApiBadRequestResponse({ description: '잘못된 요청' })
+  @ApiUnauthorizedResponse({ description: '인증 실패' })
+  async checkApplication(
+    @Req() req: AuthRequest,
+    @Param('jobId', ParseIntPipe) jobId: number,
+  ): Promise<{ isApplied: boolean }> {
+    const userId = req.user.id;
+    const isApplied = await this.applyService.checkApplication(userId, jobId);
+    return { isApplied };
+  }
+
+  /**
    * 지원 기록을 수정
    */
   @Patch(':id')
