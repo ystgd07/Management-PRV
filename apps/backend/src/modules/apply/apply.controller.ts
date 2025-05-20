@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   ParseIntPipe,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -106,5 +107,19 @@ export class ApplyController {
   ): Promise<{ message: string }> {
     const userId = req.user.id;
     return this.applyService.updateHistoryNote(historyId, dto.notes, userId);
+  }
+
+  // 지원 기록 삭제
+  @Delete(':id')
+  @ApiOperation({ summary: '지원 내역 삭제' })
+  @ApiOkResponse({ description: '지원 내역 삭제 성공' })
+  @ApiBadRequestResponse({ description: '잘못된 요청' })
+  @ApiUnauthorizedResponse({ description: '인증 실패' })
+  async deleteApplication(
+    @Req() req: AuthRequest,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ message: string }> {
+    const userId = req.user.id;
+    return this.applyService.deleteApplication(id, userId);
   }
 }
