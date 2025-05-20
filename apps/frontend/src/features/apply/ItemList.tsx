@@ -14,7 +14,7 @@ import {
   useDeleteApplyMutation,
 } from "@/entities/apply/queries";
 import { StageBadge } from "@/shared/ui/StageBadge";
-import { AlertCircle, Briefcase, Trash2 } from "lucide-react";
+import { AlertCircle, Briefcase, Trash2, FileEdit } from "lucide-react";
 import { useState } from "react";
 import ApplyStatusDetail from "./ApplyStatusDetail";
 import {
@@ -27,6 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 export default function ItemList() {
   const { data } = useApplyQuery();
@@ -68,8 +69,35 @@ export default function ItemList() {
       ...(nextDate ? { nextStageDate: nextDate } : {}),
       ...(note ? { notes: note } : {}),
     };
-    updateApply({ id: appId || 0, data });
-    setDetailOpen(false);
+    updateApply(
+      { id: appId || 0, data },
+      {
+        onSuccess: () => {
+          toast.success("수정 완료", {
+            duration: 3000,
+            style: {
+              backgroundColor: "#34d399",
+              color: "#fff",
+              fontSize: "14px",
+              
+            },
+            icon: <FileEdit className='h-5 w-5' />,
+          });
+          setDetailOpen(false);
+        },
+        onError: () => {
+          toast.error("수정 실패", {
+            icon: <AlertCircle className='h-5 w-5' />,
+            duration: 3000,
+            style: {
+              backgroundColor: "#34d399",
+              color: "#fff",
+              fontSize: "14px",
+            },
+          });
+        },
+      }
+    );
   };
 
   // 삭제 버튼 클릭 핸들러
@@ -80,9 +108,31 @@ export default function ItemList() {
 
   // 삭제 확인 핸들러
   const handleConfirmDelete = (id: number) => {
-    deleteApply(id);
-    setDeleteDialogOpen(false);
-    setApplicationToDelete(null);
+    deleteApply(id, {
+      onSuccess: () => {
+        toast.success("삭제 완료", {
+          icon: <Trash2 className='h-5 w-5' />,
+          duration: 3000,
+          style: {
+            backgroundColor: "#f43f5e",
+            color: "#fff",
+            fontSize: "14px",
+          },
+        });
+        setDeleteDialogOpen(false);
+        setApplicationToDelete(null);
+      },
+      onError: () => {
+        toast.error("삭제 실패", {
+          icon: <AlertCircle className='h-5 w-5' />,
+          style: {
+            backgroundColor: "#f43f5e",
+            color: "#fff",
+            fontSize: "14px",
+          },
+        });
+      },
+    });
   };
 
   // 서버 응답의 상태를 DetailSheet에서 사용하는 상태 ID로 변환
