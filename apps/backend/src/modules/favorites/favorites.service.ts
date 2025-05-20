@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FavoriteJob } from './entities/favorite-job.entity';
 import { Job } from '../jobs/entities/job.entity';
+import { ApplyService } from '../apply/apply.service';
+import { FavoriteJobResponseDto } from './dto/favorite-job.dto';
 
 @Injectable()
 export class FavoritesService {
@@ -15,6 +17,7 @@ export class FavoritesService {
     private favoriteJobsRepository: Repository<FavoriteJob>,
     @InjectRepository(Job)
     private jobsRepository: Repository<Job>,
+    private readonly applyService: ApplyService,
   ) {}
 
   async addFavorite(
@@ -60,12 +63,54 @@ export class FavoritesService {
     await this.favoriteJobsRepository.remove(favorite);
   }
 
-  async getFavorites(userId: number): Promise<FavoriteJob[]> {
-    return this.favoriteJobsRepository.find({
+  async getFavorites(userId: number): Promise<FavoriteJobResponseDto[]> {
+    const favoriteJobs = await this.favoriteJobsRepository.find({
       where: { userId, status: 'active' },
       relations: ['job'],
       order: { createdAt: 'DESC' },
     });
+
+    if (favoriteJobs.length === 0) {
+      return [];
+    }
+
+    const favoriteJobResponses = await Promise.all(
+      favoriteJobs.map(async (favJob) => {
+        if (!favJob.job) {
+          console.warn(`Job with id ${favJob.jobId} not found`);
+          return null;
+        }
+
+        // 지원 여부 확인
+        const isApplied = await this.applyService.checkApplication(
+          userId,
+          favJob.jobId,
+        );
+
+        return {
+          id: favJob.id,
+          jobId: favJob.jobId,
+          notes: favJob.notes,
+          status: favJob.status,
+          createdAt: favJob.createdAt,
+          isApplied, // 지원 여부 추가
+          job: {
+            id: favJob.job.id,
+            title: favJob.job.title,
+            company: favJob.job.company,
+            location: favJob.job.location,
+            annualFrom: favJob.job.annualFrom,
+            annualTo: favJob.job.annualTo,
+            dueTime: favJob.job.dueTime,
+            position: favJob.job.position,
+          },
+        };
+      }),
+    );
+
+    return favoriteJobResponses.filter(
+      (response): response is NonNullable<typeof response> => response !== null,
+    );
   }
 
   async checkFavorite(userId: number, jobId: number): Promise<boolean> {

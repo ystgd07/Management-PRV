@@ -108,6 +108,21 @@ export class ApplyService {
   }
 
   /**
+   * 사용자가 특정 공고에 지원했는지 확인
+   */
+  async checkApplication(userId: number, jobId: number): Promise<boolean> {
+    try {
+      const application = await this.applicationsRepository.findOne({
+        where: { userId, jobId },
+      });
+      return !!application;
+    } catch (error: unknown) {
+      console.error('지원 여부 확인 중 오류 발생:', error);
+      return false;
+    }
+  }
+
+  /**
    * 지원 기록을 수정
    */
   async updateApplication(applicationId: number, dto: UpdateApplicationDto) {
