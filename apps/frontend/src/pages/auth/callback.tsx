@@ -5,14 +5,36 @@ import { Spinner } from "@/components/ui/spinner";
 export default function AuthCallback() {
   const { handleOAuthCallback, isLoading, error } = useGoogleLogin();
   const [localError, setLocalError] = useState<string | null>(null);
+  const [callbackState, setCallbackState] = useState<string | null>("pending");
 
   useEffect(() => {
-    handleOAuthCallback().catch((err) => {
-      setLocalError(err.message || "인증 과정에서 오류가 발생했습니다.");
-    });
+    const processAuth = async () => {
+      setCallbackState("pending");
+      try {
+        const result = await handleOAuthCallback();
+        setCallbackState("success");
+      } catch (err: unknown) {
+        setLocalError(
+          err instanceof Error
+            ? err.message
+            : "인증 과정에서 오류가 발생했습니다."
+        );
+        setCallbackState("error");
+      }
+    };
+    processAuth();
   }, [handleOAuthCallback]);
 
-  if (error || localError) {
+  if (callbackState === "pending") {
+    return (
+      <div className='flex flex-col items-center justify-center min-h-screen p-4'>
+        <Spinner size='lg' />
+        <p className='mt-4 text-muted-foreground'>로그인 처리 중입니다...</p>
+      </div>
+    );
+  }
+
+  if (callbackState === "error") {
     return (
       <div className='flex flex-col items-center justify-center min-h-screen p-4'>
         <div className='mb-4 text-destructive'>
